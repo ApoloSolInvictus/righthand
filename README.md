@@ -9,7 +9,7 @@ Slogan: **La mano derecha de tu tienda.**
 - **Frontend:** Next.js 14 App Router, TypeScript, Tailwind CSS y componentes estilo shadcn/ui.
 - **Dominio multi-tenant:** todas las tablas operativas usan `business_id`; miembros y roles viven en `business_members`.
 - **Datos:** Supabase Auth, Postgres, Storage y RLS. El MVP corre localmente con datos demo en `src/lib/mock-data.ts`.
-- **AI Manager:** `POST /api/ai/delivery-manager` usa OpenAI Responses API con salida estructurada; si no hay `OPENAI_API_KEY`, responde con heuristica local.
+- **AI Manager:** `POST /api/ai/delivery-manager` usa OpenAI Responses API con salida estructurada; si no hay `OPENAI_API_KEY` o hay timeout, responde con heuristica local.
 - **Pagos:** rutas PayPal para crear suscripciones y recibir webhooks, con modo demo si faltan credenciales.
 - **Entregas:** `generateWazeLink({ lat, lng, address })` usa lat/lng cuando existen y fallback por direccion.
 
@@ -27,11 +27,13 @@ Slogan: **La mano derecha de tu tienda.**
 - `/dashboard/couriers`
 - `/dashboard/ai-manager`
 - `/dashboard/billing`
+- `/dashboard/setup`
 - `/courier`
 - `/courier/orders`
 - `/tienda/[slug]`
 - `/tienda/[slug]/checkout`
 - `/order/[publicTrackingCode]`
+- `/api/health`
 
 ## Instalacion Local
 
@@ -42,7 +44,9 @@ npm run dev
 
 Abre `http://localhost:3000`.
 
-Sin variables de entorno, login/register entran en modo demo y el AI Manager usa heuristica local. Para conectar servicios reales:
+Sin variables de entorno, login/register entran en modo demo y el AI Manager usa heuristica local. Supabase queda bloqueado aunque existan `NEXT_PUBLIC_SUPABASE_*` hasta activar `NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=true`; esto evita mezclar datos con un proyecto Supabase equivocado.
+
+Para conectar servicios reales:
 
 ```bash
 cp .env.example .env.local
@@ -51,6 +55,7 @@ cp .env.example .env.local
 Luego completa Supabase, OpenAI y PayPal.
 
 Para publicar y conectar APIs paso a paso, usa [docs/CONNECT_APIS.md](docs/CONNECT_APIS.md).
+En el dashboard tambien puedes abrir `/dashboard/setup` para ver el estado de integraciones del deploy.
 
 ## Modo Demo Interactivo
 
@@ -58,6 +63,7 @@ Las pantallas de dashboard usan `localStorage` para que los botones funcionen si
 
 - Guardar identidad de tienda, logo y portada.
 - Crear productos y ajustar stock.
+- Crear pedidos desde checkout y verlos en seguimiento/dashboard local.
 - Avanzar o cancelar pedidos.
 - Agregar notas CRM.
 - Invitar mensajeros y cambiar disponibilidad.
@@ -67,6 +73,12 @@ Las pantallas de dashboard usan `localStorage` para que los botones funcionen si
 Para reiniciar la demo, borra las claves del navegador que empiezan con `righthand:`.
 
 ## Supabase
+
+RightHand no trae APIs ni llaves reales en el repo. Las variables en `.env.example` son placeholders. En produccion Supabase solo se usa cuando el proyecto dedicado esta confirmado con:
+
+```env
+NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=true
+```
 
 SQL principal:
 

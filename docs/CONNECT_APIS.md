@@ -23,6 +23,13 @@ NEXT_PUBLIC_APP_URL=https://TU-DOMINIO.vercel.app
 
 Sin APIs reales, RightHand sigue funcionando en modo demo local del navegador.
 
+Puedes revisar el estado del deploy en:
+
+```text
+https://TU-DOMINIO.vercel.app/dashboard/setup
+https://TU-DOMINIO.vercel.app/api/health
+```
+
 Si Vercel muestra `Error: Command "npm build" exited with 1`, cambia el Build Command en `Project Settings > Build & Development Settings` a:
 
 ```bash
@@ -38,7 +45,7 @@ Docs utiles:
 
 ## 2. Supabase
 
-1. Crea un proyecto en Supabase.
+1. Crea un proyecto nuevo en Supabase, dedicado solo a RightHand.
 2. Ve a SQL Editor.
 3. Ejecuta `supabase/migrations/0001_righthand_init.sql`.
 4. Ejecuta `supabase/seed.sql` si quieres los datos demo en la base.
@@ -49,14 +56,23 @@ Docs utiles:
 9. Agrega en Vercel:
 
 ```env
+NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=false
 NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 SUPABASE_SERVICE_ROLE_KEY=...
 ```
 
+Primero deja `NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=false` y abre `/dashboard/setup`.
+Cuando confirmes que el `projectRef` mostrado corresponde al proyecto nuevo de RightHand, cambia la bandera a:
+
+```env
+NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=true
+```
+
 Importante:
 
 - Nunca pongas `SUPABASE_SERVICE_ROLE_KEY` con prefijo `NEXT_PUBLIC_`.
+- No reutilices un proyecto Supabase de otra app. Si usas la misma URL/key, los datos quedan en la misma base.
 - RLS ya esta activado en el SQL.
 - Buckets creados: `store-assets` y `delivery-proofs`.
 
@@ -75,6 +91,7 @@ Docs utiles:
 ```env
 OPENAI_API_KEY=sk-...
 OPENAI_MODEL=gpt-5.4-mini
+OPENAI_TIMEOUT_MS=15000
 ```
 
 Endpoint que usa esta key:
@@ -83,7 +100,7 @@ Endpoint que usa esta key:
 POST /api/ai/delivery-manager
 ```
 
-Si no hay key, el endpoint responde con heuristica local.
+Si no hay key, o si OpenAI no responde antes del timeout, el endpoint responde con heuristica local.
 
 Docs utiles:
 
@@ -161,8 +178,9 @@ Flujos recomendados:
 3. Configurar redirect URLs en Supabase Auth.
 4. Ejecutar SQL/RLS en Supabase.
 5. Agregar variables de entorno en Vercel para Production.
-6. Hacer deploy.
-7. Crear usuario owner.
-8. Revisar que login, dashboard, checkout y webhook respondan.
-9. Pasar PayPal de sandbox a live cuando las pruebas esten listas.
-10. Rotar llaves antes de lanzar publicamente si alguna fue compartida por accidente.
+6. Confirmar `/dashboard/setup` y activar `NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=true`.
+7. Hacer deploy.
+8. Crear usuario owner.
+9. Revisar que login, dashboard, checkout y webhook respondan.
+10. Pasar PayPal de sandbox a live cuando las pruebas esten listas.
+11. Rotar llaves antes de lanzar publicamente si alguna fue compartida por accidente.

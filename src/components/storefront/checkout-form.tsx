@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { crcCurrency } from "@/lib/utils";
-import type { Product, Store } from "@/lib/types";
+import type { Order, Product, Store } from "@/lib/types";
 
 type CheckoutFormProps = {
   store: Store;
@@ -19,6 +19,7 @@ type CheckoutFormProps = {
 
 export function CheckoutForm({ store, products, selectedProductId }: CheckoutFormProps) {
   const [trackingCode, setTrackingCode] = useState<string | null>(null);
+  const [error, setError] = useState("");
   const [quantities, setQuantities] = useState<Record<string, number>>(() =>
     Object.fromEntries(
       products
@@ -46,9 +47,34 @@ export function CheckoutForm({ store, products, selectedProductId }: CheckoutFor
   );
   const total = subtotal + (subtotal > 0 ? zone?.fee || 0 : 0);
 
+  function persistDemoOrder(order: Order) {
+    try {
+      const raw = window.localStorage.getItem("righthand:orders");
+      const current = raw ? (JSON.parse(raw) as Order[]) : [];
+      window.localStorage.setItem(
+        "righthand:orders",
+        JSON.stringify([
+          order,
+          ...current.filter(
+            (item) => item.publicTrackingCode !== order.publicTrackingCode,
+          ),
+        ]),
+      );
+    } catch {
+      // Local persistence is best-effort in demo mode.
+    }
+  }
+
   async function submitOrder(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const selectedItems = products
+      .filter((product) => (quantities[product.id] || 0) > 0)
+      .map((product) => ({
+        product,
+        quantity: quantities[product.id],
+      }));
+
     const response = await fetch("/api/orders", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -57,16 +83,57 @@ export function CheckoutForm({ store, products, selectedProductId }: CheckoutFor
         customerName: formData.get("customerName"),
         customerPhone: formData.get("customerPhone"),
         address: formData.get("address"),
-        items: products
-          .filter((product) => (quantities[product.id] || 0) > 0)
-          .map((product) => ({
-            productId: product.id,
-            quantity: quantities[product.id],
-          })),
+        items: selectedItems.map((item) => ({
+          productId: item.product.id,
+          quantity: item.quantity,
+        })),
       }),
     });
-    const data = (await response.json()) as { trackingCode?: string };
-    setTrackingCode(data.trackingCode || "RH-DEMO");
+    const data = (await response.json()) as {
+      trackingCode?: string;
+      subtotal?: number;
+      deliveryFee?: number;
+      total?: number;
+      error?: string;
+    };
+
+    if (!response.ok) {
+      setError(data.error || "No pudimos crear el pedido.");
+      return;
+    }
+
+    const code = data.trackingCode || "RH-DEMO";
+    const now = new Date();
+    const promisedAt = new Date(now.getTime() + (zone?.etaMinutes || 35) * 60000);
+
+    persistDemoOrder({
+      id: `o_demo_${Date.now()}`,
+      businessId: store.businessId,
+      customerId: `cu_demo_${Date.now()}`,
+      publicTrackingCode: code,
+      status: "new",
+      customerName: String(formData.get("customerName") || "Cliente"),
+      customerPhone: String(formData.get("customerPhone") || ""),
+      address: String(formData.get("address") || ""),
+      zone: zone?.name || "Zona demo",
+      subtotal: data.subtotal ?? subtotal,
+      deliveryFee: data.deliveryFee ?? (zone?.fee || 0),
+      total: data.total ?? total,
+      createdAt: now.toISOString(),
+      promisedAt: promisedAt.toISOString(),
+      items: selectedItems.map((item) => ({
+        id: `oi_demo_${item.product.id}_${Date.now()}`,
+        orderId: code,
+        businessId: store.businessId,
+        productId: item.product.id,
+        productName: item.product.name,
+        quantity: item.quantity,
+        unitPrice: item.product.price,
+      })),
+    });
+
+    setError("");
+    setTrackingCode(code);
   }
 
   return (
@@ -138,6 +205,11 @@ export function CheckoutForm({ store, products, selectedProductId }: CheckoutFor
         <Button className="mt-5 w-full" variant="delivery" disabled={subtotal <= 0}>
           Confirmar pedido
         </Button>
+        {error ? (
+          <p className="mt-3 rounded-md bg-destructive/10 p-3 text-sm font-medium text-destructive">
+            {error}
+          </p>
+        ) : null}
         {trackingCode ? (
           <div className="mt-4 rounded-md bg-success/10 p-3 text-sm font-medium text-success">
             <p>Pedido creado: {trackingCode}</p>

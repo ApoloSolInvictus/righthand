@@ -6,6 +6,7 @@ import {
   MapPinned,
   PackageCheck,
   Send,
+  Settings,
   ShoppingBag,
   Store,
   Users,
@@ -25,6 +26,7 @@ const navItems = [
   { href: "/dashboard/couriers", label: "Mensajeros", icon: Send },
   { href: "/dashboard/ai-manager", label: "AI Manager", icon: Bot },
   { href: "/dashboard/billing", label: "Billing", icon: CreditCard },
+  { href: "/dashboard/setup", label: "Setup APIs", icon: Settings },
 ];
 
 export function DashboardShell({ children }: { children: ReactNode }) {

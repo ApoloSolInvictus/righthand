@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, Loader2, Route, Send } from "lucide-react";
+import { Bot, ExternalLink, Loader2, Route, Send, UserCheck } from "lucide-react";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -76,7 +76,7 @@ export function AiManagerRunner({ input }: { input: DeliveryManagerInput }) {
               Fuente: {source}
             </Badge>
           </div>
-          <section className="grid gap-4 lg:grid-cols-2">
+          <section className="grid gap-4 lg:grid-cols-3">
             <Card>
               <CardHeader>
                 <CardTitle>Prioridades</CardTitle>
@@ -117,6 +117,42 @@ export function AiManagerRunner({ input }: { input: DeliveryManagerInput }) {
                     </p>
                     <p className="mt-2 text-xs text-muted-foreground">
                       {route.orderIds.length} pedido(s), {route.wazeLinks.length} Waze link(s)
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {route.wazeLinks.map((link, index) => (
+                        <Button
+                          key={`${route.zone}-${link}`}
+                          asChild
+                          size="sm"
+                          variant="outline"
+                        >
+                          <a href={link} target="_blank" rel="noreferrer">
+                            <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                            Waze {index + 1}
+                          </a>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Mensajero recomendado</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {result.courierRecommendations.map((recommendation) => (
+                  <div key={recommendation.orderId} className="rounded-md border p-3">
+                    <p className="flex items-center gap-2 font-semibold">
+                      <UserCheck className="h-4 w-4 text-success" aria-hidden="true" />
+                      {recommendation.courierName || "Sin mensajero"}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Pedido {recommendation.orderId}
+                    </p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {recommendation.reason}
                     </p>
                   </div>
                 ))}
