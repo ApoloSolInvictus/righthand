@@ -156,6 +156,8 @@ npm run build
 npm run lint
 ```
 
+En Vercel el Build Command debe ser `npm run build`, no `npm build`.
+
 ## TODOs Para Produccion
 
 - Crear flujo owner onboarding que inserte `businesses`, `stores` y `business_members` despues de Supabase Auth.

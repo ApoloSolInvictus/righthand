@@ -23,6 +23,14 @@ NEXT_PUBLIC_APP_URL=https://TU-DOMINIO.vercel.app
 
 Sin APIs reales, RightHand sigue funcionando en modo demo local del navegador.
 
+Si Vercel muestra `Error: Command "npm build" exited with 1`, cambia el Build Command en `Project Settings > Build & Development Settings` a:
+
+```bash
+npm run build
+```
+
+`npm build` no es un comando valido de npm. Este repo incluye `vercel.json` para que los nuevos deploys usen `npm run build` automaticamente.
+
 Docs utiles:
 
 - Vercel env vars: https://vercel.com/docs/environment-variables
