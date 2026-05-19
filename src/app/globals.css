@@ -53,3 +53,27 @@
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   }
 }
+
+@media print {
+  @page {
+    margin: 12mm;
+    size: A4 portrait;
+  }
+
+  body {
+    background: white;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-surface {
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .accounting-print {
+    break-inside: avoid;
+  }
+}

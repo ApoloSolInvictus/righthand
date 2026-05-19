@@ -1,6 +1,7 @@
 import {
   Bot,
   Boxes,
+  Calculator,
   CreditCard,
   LayoutDashboard,
   MapPinned,
@@ -22,6 +23,7 @@ const navItems = [
   { href: "/dashboard/products", label: "Productos", icon: ShoppingBag },
   { href: "/dashboard/orders", label: "Pedidos", icon: PackageCheck },
   { href: "/dashboard/customers", label: "Clientes", icon: Users },
+  { href: "/dashboard/accounting", label: "Contabilidad", icon: Calculator },
   { href: "/dashboard/deliveries", label: "Entregas", icon: MapPinned },
   { href: "/dashboard/couriers", label: "Mensajeros", icon: Send },
   { href: "/dashboard/ai-manager", label: "AI Manager", icon: Bot },
@@ -32,7 +34,7 @@ const navItems = [
 export function DashboardShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
-      <div className="border-b bg-card">
+      <div className="no-print border-b bg-card">
         <div className="container flex min-h-16 items-center justify-between gap-4 py-3">
           <Link href="/" className="flex items-center gap-3 font-bold text-primary">
             <span className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground">
@@ -52,7 +54,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       </div>
 
       <div className="container grid gap-6 py-6 lg:grid-cols-[230px_1fr]">
-        <aside className="lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)]">
+        <aside className="no-print lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)]">
           <nav className="grid gap-1 rounded-lg border bg-card p-2">
             {navItems.map((item) => (
               <Link

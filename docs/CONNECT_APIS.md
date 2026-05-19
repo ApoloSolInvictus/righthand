@@ -48,12 +48,13 @@ Docs utiles:
 1. Crea un proyecto nuevo en Supabase, dedicado solo a RightHand.
 2. Ve a SQL Editor.
 3. Ejecuta `supabase/migrations/0001_righthand_init.sql`.
-4. Ejecuta `supabase/seed.sql` si quieres los datos demo en la base.
-5. Ve a Project Settings / API.
-6. Copia Project URL.
-7. Copia Publishable key o anon key.
-8. Copia Service role key solo para servidor.
-9. Agrega en Vercel:
+4. Ejecuta `supabase/migrations/0002_accounting_invoices.sql`.
+5. Ejecuta `supabase/seed.sql` si quieres los datos demo en la base.
+6. Ve a Project Settings / API.
+7. Copia Project URL.
+8. Copia Publishable key o anon key.
+9. Copia Service role key solo para servidor.
+10. Agrega en Vercel:
 
 ```env
 NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=false
@@ -74,6 +75,7 @@ Importante:
 - Nunca pongas `SUPABASE_SERVICE_ROLE_KEY` con prefijo `NEXT_PUBLIC_`.
 - No reutilices un proyecto Supabase de otra app. Si usas la misma URL/key, los datos quedan en la misma base.
 - RLS ya esta activado en el SQL.
+- `invoices` guarda facturas y auxiliar IVA por `business_id`, visible para owner/admin/sales.
 - Buckets creados: `store-assets` y `delivery-proofs`.
 
 Docs utiles:

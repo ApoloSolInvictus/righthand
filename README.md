@@ -23,6 +23,7 @@ Slogan: **La mano derecha de tu tienda.**
 - `/dashboard/products`
 - `/dashboard/orders`
 - `/dashboard/customers`
+- `/dashboard/accounting`
 - `/dashboard/deliveries`
 - `/dashboard/couriers`
 - `/dashboard/ai-manager`
@@ -66,6 +67,7 @@ Las pantallas de dashboard usan `localStorage` para que los botones funcionen si
 - Crear pedidos desde checkout y verlos en seguimiento/dashboard local.
 - Avanzar o cancelar pedidos.
 - Agregar notas CRM.
+- Revisar facturacion y auxiliar IVA CR imprimible/PDF.
 - Invitar mensajeros y cambiar disponibilidad.
 - Marcar entregas como recogidas/entregadas y adjuntar foto.
 - Activar planes con PayPal en modo demo.
@@ -103,6 +105,7 @@ El esquema crea:
 - `customers`
 - `orders`
 - `order_items`
+- `invoices`
 - `delivery_zones`
 - `couriers`
 - `deliveries`
@@ -112,7 +115,15 @@ El esquema crea:
 - `subscriptions`
 - `ai_logs`
 
-Tambien crea buckets `store-assets` y `delivery-proofs`, helpers privados para RLS y grants explicitos para Data API. RLS separa datos por tenant y permite que mensajeros vean solo entregas asignadas.
+Tambien crea buckets `store-assets` y `delivery-proofs`, helpers privados para RLS y grants explicitos para Data API. RLS separa datos por tenant, permite que mensajeros vean solo entregas asignadas y mantiene `invoices` visible solo para staff del negocio.
+
+Migracion contable:
+
+```bash
+supabase/migrations/0002_accounting_invoices.sql
+```
+
+Esta migracion crea `invoices` para facturacion y auxiliar IVA por `business_id`.
 
 ## AI Delivery Manager
 

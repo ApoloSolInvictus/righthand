@@ -111,6 +111,31 @@ values
   ('ffffffff-3333-4333-8333-111111111111', '33333333-3333-4333-8333-333333333333', 'eeeeeeee-3333-4333-8333-111111111111', 'RH-FC-3001', 'confirmed', 'Jorge Mora', '+506 8666-4444', 'Rohrmoser, frente a Plaza Mayor', null, null, 'Rohrmoser', 9500, 1500, 11000, now() + interval '6 hours')
 on conflict (id) do nothing;
 
+insert into public.invoices (
+  business_id, order_id, customer_id, document_number, document_type,
+  issued_at, customer_name, currency, taxable_amount, exempt_amount,
+  tax_rate, tax_amount, total_amount, status, source
+)
+select
+  business_id,
+  id,
+  customer_id,
+  'FAC-' || public_tracking_code,
+  'factura',
+  created_at,
+  customer_name,
+  'CRC',
+  round(total / 1.13, 2),
+  0,
+  0.13,
+  total - round(total / 1.13, 2),
+  total,
+  case when status = 'cancelled' then 'void' else 'issued' end,
+  'order'
+from public.orders
+where public_tracking_code in ('RH-SL-1001', 'RH-SL-1002', 'RH-MT-2001', 'RH-FC-3001')
+on conflict (business_id, document_number) do nothing;
+
 insert into public.order_items (business_id, order_id, product_id, product_name, quantity, unit_price)
 values
   ('11111111-1111-4111-8111-111111111111', 'ffffffff-1111-4111-8111-111111111111', 'dddddddd-1111-4111-8111-222222222222', 'Chifrijo ejecutivo', 2, 4800),

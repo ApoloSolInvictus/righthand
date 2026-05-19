@@ -129,3 +129,20 @@ export type Delivery = {
   lng?: number;
   proofPhotoUrl?: string;
 };
+
+export type AccountingInvoice = {
+  id: string;
+  businessId: string;
+  orderId?: string;
+  customerId?: string;
+  documentNumber: string;
+  issuedAt: string;
+  customerName: string;
+  taxableAmount: number;
+  exemptAmount: number;
+  taxRate: number;
+  taxAmount: number;
+  totalAmount: number;
+  status: "draft" | "issued" | "paid" | "void";
+  source: "order" | "manual";
+};
