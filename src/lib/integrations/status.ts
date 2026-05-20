@@ -16,10 +16,11 @@ function bool(value: string | undefined) {
 
 export function getIntegrationStatus() {
   const paypalConfigured = Boolean(
-    process.env.PAYPAL_CLIENT_ID &&
-      process.env.PAYPAL_CLIENT_SECRET &&
-      process.env.PAYPAL_PLAN_PYME_ID &&
-      process.env.PAYPAL_PLAN_PRO_ID,
+    bool(process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID) &&
+      bool(process.env.PAYPAL_CLIENT_ID) &&
+      bool(process.env.PAYPAL_CLIENT_SECRET) &&
+      bool(process.env.PAYPAL_PLAN_PYME_ID) &&
+      bool(process.env.PAYPAL_PLAN_PRO_ID),
   );
 
   return {
@@ -45,8 +46,8 @@ export function getIntegrationStatus() {
         mode: paypalConfigured ? process.env.PAYPAL_ENVIRONMENT || "sandbox" : "demo",
         webhookConfigured: bool(process.env.PAYPAL_WEBHOOK_ID),
         detail: paypalConfigured
-          ? "Checkout de suscripciones usa PayPal."
-          : "Billing responde en modo demo hasta conectar credenciales PayPal.",
+          ? "Billing renderiza botones oficiales de PayPal."
+          : "Billing necesita NEXT_PUBLIC_PAYPAL_CLIENT_ID y credenciales PayPal.",
       },
     },
   };

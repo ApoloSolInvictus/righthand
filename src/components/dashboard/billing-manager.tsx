@@ -1,29 +1,27 @@
 "use client";
 
-import { CheckCircle2, CreditCard, ExternalLink, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { CheckCircle2, ShieldCheck } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePersistentState } from "@/lib/local-demo-store";
 import type { SubscriptionPlan } from "@/lib/types";
 import { usdCurrency } from "@/lib/utils";
 
+const PAYPAL_CLIENT_ID =
+  process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ||
+  "ASD1rB8kXGsp_nsxtjfVYBvC2kGi_seJ8ldLfrA0xiGEt768cfwS0aqegjVMf886YksbwoCoGCS2P9bs";
+
 const plans = [
-  {
-    id: "free",
-    name: "Gratis",
-    price: 0,
-    description: "20 productos y 30 pedidos/mes.",
-    features: ["Tienda publica", "Checkout basico", "Pedidos limitados"],
-  },
   {
     id: "pyme",
     name: "PYME",
     price: 19,
     description: "Productos ilimitados, CRM y entregas.",
     features: ["Inventario ilimitado", "CRM", "Entregas y zonas"],
+    planId: "P-7ER35589F36485216NIGO3JQ",
+    paypalColor: "gold",
   },
   {
     id: "pro",
@@ -31,80 +29,187 @@ const plans = [
     price: 49,
     description: "AI Delivery Manager, mensajeros y reportes.",
     features: ["AI Manager", "Mensajeros", "Reportes avanzados"],
+    planId: "P-8BN67865HY6507532NIGO4PI",
+    paypalColor: "blue",
   },
 ] as const;
 
-type CheckoutResult = {
-  plan: string;
-  subscriptionId: string;
-  approvalUrl: string;
-  mode: string;
+type PayPalSubscriptionData = {
+  subscriptionID?: string;
 };
+
+type PayPalButtonsActions = {
+  subscription: {
+    create: (input: { plan_id: string }) => Promise<string>;
+  };
+};
+
+type PayPalButtonOptions = {
+  style: {
+    shape: "pill";
+    color: "gold" | "blue";
+    layout: "vertical";
+    label: "subscribe";
+  };
+  createSubscription: (
+    data: unknown,
+    actions: PayPalButtonsActions,
+  ) => Promise<string>;
+  onApprove: (data: PayPalSubscriptionData) => void;
+  onError: (error: unknown) => void;
+};
+
+type PayPalNamespace = {
+  Buttons: (options: PayPalButtonOptions) => {
+    render: (selector: string) => Promise<void>;
+  };
+};
+
+declare global {
+  interface Window {
+    paypal?: PayPalNamespace;
+  }
+}
+
+function sdkUrl() {
+  const params = new URLSearchParams({
+    "client-id": PAYPAL_CLIENT_ID,
+    vault: "true",
+    intent: "subscription",
+    components: "buttons",
+  });
+
+  return `https://www.paypal.com/sdk/js?${params.toString()}`;
+}
+
+function planLabel(plan: SubscriptionPlan) {
+  if (plan === "free") {
+    return "sin plan activo";
+  }
+
+  return plan;
+}
 
 export function BillingManager({ currentPlan }: { currentPlan: SubscriptionPlan }) {
   const [plan, setPlan] = usePersistentState<SubscriptionPlan>(
     "righthand:billing-plan",
     currentPlan,
   );
-  const [loadingPlan, setLoadingPlan] = useState("");
-  const [result, setResult] = useState<CheckoutResult | null>(null);
+  const [sdkReady, setSdkReady] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const renderedPlans = useRef<Set<string>>(new Set());
 
-  async function activatePlan(nextPlan: SubscriptionPlan) {
-    if (nextPlan === "free") {
-      setPlan("free");
-      setResult({
-        plan: "free",
-        subscriptionId: "FREE-DEMO",
-        approvalUrl: "/dashboard/billing",
-        mode: "local",
-      });
+  useEffect(() => {
+    if (window.paypal) {
+      setSdkReady(true);
       return;
     }
 
-    setLoadingPlan(nextPlan);
-    const response = await fetch("/api/paypal/create-subscription", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ plan: nextPlan }),
+    const existingScript = document.getElementById("paypal-subscriptions-sdk");
+    if (existingScript) {
+      existingScript.addEventListener("load", () => setSdkReady(true), { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = "paypal-subscriptions-sdk";
+    script.src = sdkUrl();
+    script.async = true;
+    script.dataset.sdkIntegrationSource = "button-factory";
+    script.onload = () => setSdkReady(true);
+    script.onerror = () =>
+      setError("No se pudo cargar PayPal. Revisa el Client ID Live y el dominio.");
+    document.body.appendChild(script);
+  }, []);
+
+  useEffect(() => {
+    if (!sdkReady || !window.paypal) {
+      return;
+    }
+
+    const paypal = window.paypal;
+
+    plans.forEach((item) => {
+      const containerId = `paypal-button-container-${item.planId}`;
+      const container = document.getElementById(containerId);
+
+      if (!container || renderedPlans.current.has(item.planId)) {
+        return;
+      }
+
+      container.innerHTML = "";
+      renderedPlans.current.add(item.planId);
+
+      paypal
+        .Buttons({
+          style: {
+            shape: "pill",
+            color: item.paypalColor,
+            layout: "vertical",
+            label: "subscribe",
+          },
+          createSubscription(_data, actions) {
+            return actions.subscription.create({
+              plan_id: item.planId,
+            });
+          },
+          onApprove(data) {
+            setPlan(item.id);
+            setError("");
+            setMessage(
+              `Suscripcion ${item.name} aprobada: ${
+                data.subscriptionID || "pendiente de confirmacion"
+              }.`,
+            );
+          },
+          onError(paypalError) {
+            console.error("PayPal subscription failed", paypalError);
+            setError(
+              `PayPal no pudo iniciar el plan ${item.name}. Confirma que el plan esta activo en Live.`,
+            );
+          },
+        })
+        .render(`#${containerId}`)
+        .catch((renderError) => {
+          renderedPlans.current.delete(item.planId);
+          console.error("PayPal button render failed", renderError);
+          setError(`No se pudo renderizar el boton de PayPal para ${item.name}.`);
+        });
     });
-    const data = (await response.json()) as Omit<CheckoutResult, "plan">;
-    setPlan(nextPlan);
-    setResult({ ...data, plan: nextPlan });
-    setLoadingPlan("");
-  }
+  }, [sdkReady, setPlan]);
 
   return (
     <div className="grid gap-6">
       <div>
-        <p className="text-sm font-semibold uppercase text-delivery">PayPal</p>
+        <p className="text-sm font-semibold uppercase text-delivery">PayPal Live</p>
         <h1 className="text-3xl font-black tracking-normal text-primary">
           Suscripcion SaaS
         </h1>
         <p className="mt-2 text-muted-foreground">
-          Plan actual: <span className="font-semibold">{plan}</span>
+          Plan actual: <span className="font-semibold">{planLabel(plan)}</span>
         </p>
       </div>
 
-      {result ? (
+      {message ? (
         <Card className="border-success">
-          <CardContent className="flex flex-col gap-3 p-5 md:flex-row md:items-center md:justify-between">
+          <CardContent className="flex items-start gap-3 p-5">
+            <ShieldCheck className="mt-0.5 h-5 w-5 text-success" aria-hidden="true" />
             <div>
-              <p className="font-semibold">Plan {result.plan} activado en modo {result.mode}</p>
-              <p className="text-sm text-muted-foreground">
-                Suscripcion: {result.subscriptionId}
-              </p>
+              <p className="font-semibold">Suscripcion recibida</p>
+              <p className="text-sm text-muted-foreground">{message}</p>
             </div>
-            <Button asChild variant="outline">
-              <a href={result.approvalUrl}>
-                <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                Ver checkout
-              </a>
-            </Button>
           </CardContent>
         </Card>
       ) : null}
 
-      <section className="grid gap-4 lg:grid-cols-3">
+      {error ? (
+        <p className="rounded-md bg-destructive/10 p-3 text-sm font-medium text-destructive">
+          {error}
+        </p>
+      ) : null}
+
+      <section className="grid gap-4 lg:grid-cols-2">
         {plans.map((item) => (
           <Card key={item.id} className={item.id === plan ? "border-primary" : ""}>
             <CardHeader>
@@ -127,20 +232,16 @@ export function BillingManager({ currentPlan }: { currentPlan: SubscriptionPlan 
                   </p>
                 ))}
               </div>
-              <Button
-                type="button"
-                className="w-full"
-                variant={item.id === "pro" ? "delivery" : "outline"}
-                disabled={loadingPlan === item.id}
-                onClick={() => activatePlan(item.id)}
+              <div
+                id={`paypal-button-container-${item.planId}`}
+                className="min-h-[150px]"
               >
-                {loadingPlan === item.id ? (
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                ) : (
-                  <CreditCard className="h-4 w-4" aria-hidden="true" />
-                )}
-                {item.id === plan ? "Reactivar plan" : "Activar con PayPal"}
-              </Button>
+                {!sdkReady ? (
+                  <p className="rounded-md bg-secondary p-3 text-sm text-muted-foreground">
+                    Cargando boton oficial de PayPal...
+                  </p>
+                ) : null}
+              </div>
             </CardContent>
           </Card>
         ))}
@@ -151,9 +252,9 @@ export function BillingManager({ currentPlan }: { currentPlan: SubscriptionPlan 
           <CardTitle>Webhook configurado</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
-          La ruta <code>/api/paypal/webhook</code> recibe eventos de PayPal y esta
-          lista para actualizar <code>subscriptions</code> cuando conectes
-          credenciales reales.
+          La ruta <code>/api/paypal/webhook</code> recibe eventos de PayPal. Los
+          botones usan los planes Live oficiales y el SDK se carga una sola vez en
+          esta pantalla.
         </CardContent>
       </Card>
     </div>

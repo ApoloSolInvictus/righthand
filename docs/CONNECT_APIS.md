@@ -56,6 +56,10 @@ Docs utiles:
 9. Copia Service role key solo para servidor.
 10. Agrega en Vercel:
 
+Nota: si al ejecutar `0002_accounting_invoices.sql` aparece
+`relation "public.businesses" does not exist`, falta el paso 3. Ejecuta primero
+`0001_righthand_init.sql` y luego vuelve a correr `0002`.
+
 ```env
 NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=false
 NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co
@@ -111,34 +115,37 @@ Docs utiles:
 
 ## 4. PayPal Subscriptions
 
+RightHand usa los botones oficiales de PayPal en `/dashboard/billing`. El SDK se carga una sola vez y renderiza:
+
+- PYME: `P-7ER35589F36485216NIGO3JQ`
+- Pro: `P-8BN67865HY6507532NIGO4PI`
+
 1. Entra a PayPal Developer Dashboard.
-2. Crea una REST app en Sandbox primero.
-3. Crea productos/planes para:
-   - Plan PYME: 19 USD/mes.
-   - Plan Pro: 49 USD/mes.
-4. Copia Client ID y Client Secret.
-5. Copia los IDs de planes.
-6. Crea un webhook apuntando a:
+2. Abre la REST app Live de RightHand.
+3. Copia Client ID y Client Secret.
+4. Confirma que los planes Live PYME y Pro esten activos.
+5. Crea un webhook apuntando a:
 
 ```text
 https://TU-DOMINIO.vercel.app/api/paypal/webhook
 ```
 
-7. Suscribe eventos:
+6. Suscribe eventos:
    - `BILLING.SUBSCRIPTION.ACTIVATED`
    - `BILLING.SUBSCRIPTION.CANCELLED`
    - `BILLING.SUBSCRIPTION.SUSPENDED`
    - `PAYMENT.SALE.COMPLETED`
    - `PAYMENT.SALE.DENIED`
-8. Copia el Webhook ID.
-9. Agrega en Vercel:
+7. Copia el Webhook ID.
+8. Agrega en Vercel:
 
 ```env
-PAYPAL_ENVIRONMENT=sandbox
+NEXT_PUBLIC_PAYPAL_CLIENT_ID=...
+PAYPAL_ENVIRONMENT=live
 PAYPAL_CLIENT_ID=...
 PAYPAL_CLIENT_SECRET=...
-PAYPAL_PLAN_PYME_ID=P-...
-PAYPAL_PLAN_PRO_ID=P-...
+PAYPAL_PLAN_PYME_ID=P-7ER35589F36485216NIGO3JQ
+PAYPAL_PLAN_PRO_ID=P-8BN67865HY6507532NIGO4PI
 PAYPAL_WEBHOOK_ID=...
 ```
 
@@ -151,6 +158,7 @@ POST /api/paypal/webhook
 
 Docs utiles:
 
+- Multiple subscription buttons: https://developer.paypal.com/docs/subscriptions/customize/multiple-buttons-website/
 - Subscriptions webhooks: https://developer.paypal.com/docs/subscriptions/reference/webhooks/
 - Verify webhook signature: https://developer.paypal.com/docs/api/webhooks/v1/#verify-webhook-signature_post
 

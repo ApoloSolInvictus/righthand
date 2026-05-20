@@ -1,6 +1,22 @@
 -- RightHand accounting invoices and Costa Rica IVA auxiliary.
 -- Apply after 0001_righthand_init.sql.
 
+create extension if not exists pgcrypto;
+
+do $$
+begin
+  if to_regclass('public.businesses') is null
+    or to_regclass('public.orders') is null
+    or to_regclass('public.customers') is null
+    or to_regnamespace('app_private') is null
+    or to_regproc('app_private.is_business_member') is null
+    or to_regproc('public.touch_updated_at') is null
+  then
+    raise exception
+      'RightHand base schema is missing. Run supabase/migrations/0001_righthand_init.sql first, then rerun 0002_accounting_invoices.sql.';
+  end if;
+end $$;
+
 create table if not exists public.invoices (
   id uuid primary key default gen_random_uuid(),
   business_id uuid not null references public.businesses(id) on delete cascade,

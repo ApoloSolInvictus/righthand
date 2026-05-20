@@ -10,7 +10,7 @@ Slogan: **La mano derecha de tu tienda.**
 - **Dominio multi-tenant:** todas las tablas operativas usan `business_id`; miembros y roles viven en `business_members`.
 - **Datos:** Supabase Auth, Postgres, Storage y RLS. El MVP corre localmente con datos demo en `src/lib/mock-data.ts`.
 - **AI Manager:** `POST /api/ai/delivery-manager` usa OpenAI Responses API con salida estructurada; si no hay `OPENAI_API_KEY` o hay timeout, responde con heuristica local.
-- **Pagos:** rutas PayPal para crear suscripciones y recibir webhooks, con modo demo si faltan credenciales.
+- **Pagos:** botones oficiales PayPal Live para suscripciones PYME/Pro y webhook para eventos.
 - **Entregas:** `generateWazeLink({ lat, lng, address })` usa lat/lng cuando existen y fallback por direccion.
 
 ## Paginas Incluidas
@@ -124,6 +124,9 @@ supabase/migrations/0002_accounting_invoices.sql
 ```
 
 Esta migracion crea `invoices` para facturacion y auxiliar IVA por `business_id`.
+Si Supabase muestra `relation "public.businesses" does not exist`, primero corre
+`0001_righthand_init.sql`; esa migracion crea la tabla base `businesses` y los
+helpers privados que `0002` necesita para contabilidad y RLS.
 
 ## AI Delivery Manager
 
@@ -137,6 +140,11 @@ Recibe pedidos pendientes, direcciones, zonas, mensajeros disponibles, horario y
 
 ## PayPal
 
+La pantalla `/dashboard/billing` renderiza botones oficiales de PayPal para:
+
+- **PYME:** `P-7ER35589F36485216NIGO3JQ`
+- **Pro:** `P-8BN67865HY6507532NIGO4PI`
+
 Endpoints:
 
 ```http
@@ -146,6 +154,7 @@ POST /api/paypal/webhook
 
 Variables clave:
 
+- `NEXT_PUBLIC_PAYPAL_CLIENT_ID`
 - `PAYPAL_CLIENT_ID`
 - `PAYPAL_CLIENT_SECRET`
 - `PAYPAL_PLAN_PYME_ID`
