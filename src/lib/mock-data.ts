@@ -17,7 +17,7 @@ export const businesses: Business[] = [
     slug: "soda-luna",
     type: "restaurante",
     description: "Casados, desayunos y express en San Pedro.",
-    plan: "pro",
+    plan: "free",
   },
   {
     id: "b_moda_tica",
@@ -25,7 +25,7 @@ export const businesses: Business[] = [
     slug: "moda-tica",
     type: "ropa",
     description: "Ropa casual para entregas rapidas en GAM.",
-    plan: "pyme",
+    plan: "free",
   },
   {
     id: "b_farma_central",

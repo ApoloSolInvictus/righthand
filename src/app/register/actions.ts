@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { ensureBusinessForUser } from "@/lib/account-provisioning";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
@@ -17,7 +18,7 @@ export async function register(formData: FormData) {
   const fullName = String(formData.get("fullName") || "");
   const businessName = String(formData.get("businessName") || "");
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -30,6 +31,15 @@ export async function register(formData: FormData) {
 
   if (error) {
     redirect("/register?error=auth");
+  }
+
+  if (data.user?.id) {
+    await ensureBusinessForUser({
+      userId: data.user.id,
+      email,
+      fullName,
+      businessName,
+    });
   }
 
   revalidatePath("/", "layout");

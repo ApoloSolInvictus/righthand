@@ -20,10 +20,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getCurrentAccount } from "@/lib/account-context";
 import { getBusinessDataset } from "@/lib/mock-data";
+import { canUseFeature, planDetails } from "@/lib/plans";
 import { crcCurrency } from "@/lib/utils";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const account = await getCurrentAccount();
   const dataset = getBusinessDataset();
   const sales = dataset.orders.reduce((sum, order) => sum + order.total, 0);
   const pending = dataset.orders.filter(
@@ -45,10 +48,19 @@ export default function DashboardPage() {
           <p className="mt-2 text-muted-foreground">
             Ventas, pedidos, clientes, inventario y entregas del dia demo.
           </p>
+          <Badge className="mt-3" variant={account.plan === "free" ? "secondary" : "success"}>
+            Plan {planDetails[account.plan].label}
+          </Badge>
         </div>
-        <Button asChild variant="delivery">
-          <Link href="/dashboard/ai-manager">Abrir AI Manager</Link>
-        </Button>
+        {canUseFeature(account.plan, "aiManager") ? (
+          <Button asChild variant="delivery">
+            <Link href="/dashboard/ai-manager">Abrir AI Manager</Link>
+          </Button>
+        ) : (
+          <Button asChild variant="delivery">
+            <Link href="/dashboard/billing">Activar AI Manager</Link>
+          </Button>
+        )}
       </div>
 
       <section className="grid dashboard-grid gap-4">

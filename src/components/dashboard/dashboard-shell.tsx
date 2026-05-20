@@ -7,7 +7,6 @@ import {
   MapPinned,
   PackageCheck,
   Send,
-  Settings,
   ShoppingBag,
   Store,
   Users,
@@ -16,22 +15,42 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { canUseFeature, planDetails, type DashboardFeature } from "@/lib/plans";
+import type { SubscriptionPlan } from "@/lib/types";
 
-const navItems = [
-  { href: "/dashboard", label: "Resumen", icon: LayoutDashboard },
-  { href: "/dashboard/store", label: "Tienda", icon: Store },
-  { href: "/dashboard/products", label: "Productos", icon: ShoppingBag },
-  { href: "/dashboard/orders", label: "Pedidos", icon: PackageCheck },
-  { href: "/dashboard/customers", label: "Clientes", icon: Users },
-  { href: "/dashboard/accounting", label: "Contabilidad", icon: Calculator },
-  { href: "/dashboard/deliveries", label: "Entregas", icon: MapPinned },
-  { href: "/dashboard/couriers", label: "Mensajeros", icon: Send },
-  { href: "/dashboard/ai-manager", label: "AI Manager", icon: Bot },
-  { href: "/dashboard/billing", label: "Billing", icon: CreditCard },
-  { href: "/dashboard/setup", label: "Setup APIs", icon: Settings },
+const navItems: Array<{
+  href: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  feature: DashboardFeature;
+}> = [
+  { href: "/dashboard", label: "Resumen", icon: LayoutDashboard, feature: "dashboard" },
+  { href: "/dashboard/store", label: "Tienda", icon: Store, feature: "store" },
+  { href: "/dashboard/products", label: "Productos", icon: ShoppingBag, feature: "products" },
+  { href: "/dashboard/orders", label: "Pedidos", icon: PackageCheck, feature: "orders" },
+  { href: "/dashboard/customers", label: "Clientes", icon: Users, feature: "customers" },
+  {
+    href: "/dashboard/accounting",
+    label: "Contabilidad",
+    icon: Calculator,
+    feature: "accounting",
+  },
+  { href: "/dashboard/deliveries", label: "Entregas", icon: MapPinned, feature: "deliveries" },
+  { href: "/dashboard/couriers", label: "Mensajeros", icon: Send, feature: "couriers" },
+  { href: "/dashboard/ai-manager", label: "AI Manager", icon: Bot, feature: "aiManager" },
+  { href: "/dashboard/billing", label: "Billing", icon: CreditCard, feature: "billing" },
 ];
 
-export function DashboardShell({ children }: { children: ReactNode }) {
+export function DashboardShell({
+  children,
+  plan,
+}: {
+  children: ReactNode;
+  plan: SubscriptionPlan;
+}) {
+  const visibleNavItems = navItems.filter((item) => canUseFeature(plan, item.feature));
+
   return (
     <div className="min-h-screen bg-background">
       <div className="no-print border-b bg-card">
@@ -56,7 +75,15 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       <div className="container grid gap-6 py-6 lg:grid-cols-[230px_1fr]">
         <aside className="no-print lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)]">
           <nav className="grid gap-1 rounded-lg border bg-card p-2">
-            {navItems.map((item) => (
+            <div className="mb-1 flex items-center justify-between rounded-md bg-secondary px-3 py-2">
+              <span className="text-xs font-semibold uppercase text-muted-foreground">
+                Plan
+              </span>
+              <Badge variant={plan === "free" ? "secondary" : "success"}>
+                {planDetails[plan].label}
+              </Badge>
+            </div>
+            {visibleNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

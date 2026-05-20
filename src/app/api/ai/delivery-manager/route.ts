@@ -2,11 +2,13 @@ import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import { NextResponse } from "next/server";
 
+import { getCurrentAccount } from "@/lib/account-context";
 import {
   DeliveryManagerInputSchema,
   DeliveryManagerResponseSchema,
   heuristicDeliveryPlan,
 } from "@/lib/ai/delivery-manager";
+import { canUseFeature, planDetails } from "@/lib/plans";
 
 function hasUsableOpenAIKey() {
   const key = process.env.OPENAI_API_KEY;
@@ -31,6 +33,18 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
 }
 
 export async function POST(request: Request) {
+  const account = await getCurrentAccount();
+
+  if (!canUseFeature(account.plan, "aiManager")) {
+    return NextResponse.json(
+      {
+        error: "AI Delivery Manager requires Plan Pro",
+        plan: planDetails[account.plan].label,
+      },
+      { status: 402 },
+    );
+  }
+
   const body = await request.json();
   const parsed = DeliveryManagerInputSchema.safeParse(body);
 

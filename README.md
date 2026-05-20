@@ -28,7 +28,6 @@ Slogan: **La mano derecha de tu tienda.**
 - `/dashboard/couriers`
 - `/dashboard/ai-manager`
 - `/dashboard/billing`
-- `/dashboard/setup`
 - `/courier`
 - `/courier/orders`
 - `/tienda/[slug]`
@@ -56,7 +55,6 @@ cp .env.example .env.local
 Luego completa Supabase, OpenAI y PayPal.
 
 Para publicar y conectar APIs paso a paso, usa [docs/CONNECT_APIS.md](docs/CONNECT_APIS.md).
-En el dashboard tambien puedes abrir `/dashboard/setup` para ver el estado de integraciones del deploy.
 
 ## Modo Demo Interactivo
 
@@ -128,6 +126,16 @@ Si Supabase muestra `relation "public.businesses" does not exist`, primero corre
 `0001_righthand_init.sql`; esa migracion crea la tabla base `businesses` y los
 helpers privados que `0002` necesita para contabilidad y RLS.
 
+Migracion de planes:
+
+```bash
+supabase/migrations/0003_subscription_entitlements.sql
+```
+
+Esta migracion deja todos los negocios nuevos en plan Gratis, conserva
+`ronnywoods77@gmail.com` como Pro y sincroniza el plan del negocio cuando PayPal
+activa, cancela o suspende una suscripcion.
+
 ## AI Delivery Manager
 
 Endpoint:
@@ -149,6 +157,7 @@ Endpoints:
 
 ```http
 POST /api/paypal/create-subscription
+POST /api/paypal/activate-subscription
 POST /api/paypal/webhook
 ```
 

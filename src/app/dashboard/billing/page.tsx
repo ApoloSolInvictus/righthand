@@ -1,8 +1,14 @@
 import { BillingManager } from "@/components/dashboard/billing-manager";
-import { getBusinessDataset } from "@/lib/mock-data";
+import { getCurrentAccount } from "@/lib/account-context";
 
-export default function BillingPage() {
-  const { business } = getBusinessDataset();
+export default async function BillingPage() {
+  const account = await getCurrentAccount();
 
-  return <BillingManager currentPlan={business.plan} />;
+  return (
+    <BillingManager
+      currentPlan={account.plan}
+      businessId={account.businessId}
+      isOwnerOverride={account.isOwnerOverride}
+    />
+  );
 }

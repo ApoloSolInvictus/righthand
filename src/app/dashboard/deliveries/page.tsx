@@ -12,10 +12,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PlanUpgradeCard } from "@/components/dashboard/plan-upgrade-card";
+import { getCurrentAccount } from "@/lib/account-context";
 import { getBusinessDataset } from "@/lib/mock-data";
+import { canUseFeature } from "@/lib/plans";
 import { generateWazeLink } from "@/lib/waze";
 
-export default function DeliveriesPage() {
+export default async function DeliveriesPage() {
+  const account = await getCurrentAccount();
+
+  if (!canUseFeature(account.plan, "deliveries")) {
+    return <PlanUpgradeCard feature="deliveries" currentPlan={account.plan} />;
+  }
+
   const { deliveries, orders, couriers } = getBusinessDataset();
 
   return (

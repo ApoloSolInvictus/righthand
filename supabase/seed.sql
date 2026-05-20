@@ -2,8 +2,8 @@
 
 insert into public.businesses (id, name, slug, legal_name, phone, email, plan)
 values
-  ('11111111-1111-4111-8111-111111111111', 'Soda Luna', 'soda-luna', 'Soda Luna Demo S.A.', '+506 2222-1000', 'hola+soda@example.com', 'pro'),
-  ('22222222-2222-4222-8222-222222222222', 'Moda Tica', 'moda-tica', 'Moda Tica Demo S.R.L.', '+506 2222-2000', 'hola+moda@example.com', 'pyme'),
+  ('11111111-1111-4111-8111-111111111111', 'Soda Luna', 'soda-luna', 'Soda Luna Demo S.A.', '+506 2222-1000', 'hola+soda@example.com', 'free'),
+  ('22222222-2222-4222-8222-222222222222', 'Moda Tica', 'moda-tica', 'Moda Tica Demo S.R.L.', '+506 2222-2000', 'hola+moda@example.com', 'free'),
   ('33333333-3333-4333-8333-333333333333', 'Farma Central', 'farma-central', 'Farma Central Demo S.A.', '+506 2222-3000', 'hola+farma@example.com', 'free')
 on conflict (id) do nothing;
 

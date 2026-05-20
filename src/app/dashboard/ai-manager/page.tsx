@@ -1,8 +1,17 @@
 import { AiManagerRunner } from "@/components/dashboard/ai-manager-runner";
+import { PlanUpgradeCard } from "@/components/dashboard/plan-upgrade-card";
+import { getCurrentAccount } from "@/lib/account-context";
 import { buildDeliveryManagerInput } from "@/lib/ai/delivery-manager";
 import { getBusinessDataset } from "@/lib/mock-data";
+import { canUseFeature } from "@/lib/plans";
 
-export default function AiManagerPage() {
+export default async function AiManagerPage() {
+  const account = await getCurrentAccount();
+
+  if (!canUseFeature(account.plan, "aiManager")) {
+    return <PlanUpgradeCard feature="aiManager" currentPlan={account.plan} />;
+  }
+
   const dataset = getBusinessDataset();
   const input = buildDeliveryManagerInput(dataset);
 

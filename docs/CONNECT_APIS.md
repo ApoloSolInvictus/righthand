@@ -26,7 +26,6 @@ Sin APIs reales, RightHand sigue funcionando en modo demo local del navegador.
 Puedes revisar el estado del deploy en:
 
 ```text
-https://TU-DOMINIO.vercel.app/dashboard/setup
 https://TU-DOMINIO.vercel.app/api/health
 ```
 
@@ -49,12 +48,13 @@ Docs utiles:
 2. Ve a SQL Editor.
 3. Ejecuta `supabase/migrations/0001_righthand_init.sql`.
 4. Ejecuta `supabase/migrations/0002_accounting_invoices.sql`.
-5. Ejecuta `supabase/seed.sql` si quieres los datos demo en la base.
-6. Ve a Project Settings / API.
-7. Copia Project URL.
-8. Copia Publishable key o anon key.
-9. Copia Service role key solo para servidor.
-10. Agrega en Vercel:
+5. Ejecuta `supabase/migrations/0003_subscription_entitlements.sql`.
+6. Ejecuta `supabase/seed.sql` si quieres los datos demo en la base.
+7. Ve a Project Settings / API.
+8. Copia Project URL.
+9. Copia Publishable key o anon key.
+10. Copia Service role key solo para servidor.
+11. Agrega en Vercel:
 
 Nota: si al ejecutar `0002_accounting_invoices.sql` aparece
 `relation "public.businesses" does not exist`, falta el paso 3. Ejecuta primero
@@ -67,8 +67,9 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 SUPABASE_SERVICE_ROLE_KEY=...
 ```
 
-Primero deja `NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=false` y abre `/dashboard/setup`.
-Cuando confirmes que el `projectRef` mostrado corresponde al proyecto nuevo de RightHand, cambia la bandera a:
+Primero deja `NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=false`. Cuando confirmes que
+la URL y el `projectRef` corresponden al proyecto nuevo de RightHand, cambia la
+bandera a:
 
 ```env
 NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=true
@@ -134,6 +135,7 @@ https://TU-DOMINIO.vercel.app/api/paypal/webhook
    - `BILLING.SUBSCRIPTION.ACTIVATED`
    - `BILLING.SUBSCRIPTION.CANCELLED`
    - `BILLING.SUBSCRIPTION.SUSPENDED`
+   - `BILLING.SUBSCRIPTION.PAYMENT.FAILED`
    - `PAYMENT.SALE.COMPLETED`
    - `PAYMENT.SALE.DENIED`
 7. Copia el Webhook ID.
@@ -153,6 +155,7 @@ Endpoints:
 
 ```http
 POST /api/paypal/create-subscription
+POST /api/paypal/activate-subscription
 POST /api/paypal/webhook
 ```
 
@@ -188,7 +191,7 @@ Flujos recomendados:
 3. Configurar redirect URLs en Supabase Auth.
 4. Ejecutar SQL/RLS en Supabase.
 5. Agregar variables de entorno en Vercel para Production.
-6. Confirmar `/dashboard/setup` y activar `NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=true`.
+6. Confirmar `/api/health` y activar `NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=true`.
 7. Hacer deploy.
 8. Crear usuario owner.
 9. Revisar que login, dashboard, checkout y webhook respondan.

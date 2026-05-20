@@ -18,15 +18,21 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { usePersistentState } from "@/lib/local-demo-store";
-import type { Product, ProductCategory } from "@/lib/types";
+import { freePlanLimits, planDetails } from "@/lib/plans";
+import type { Product, ProductCategory, SubscriptionPlan } from "@/lib/types";
 import { crcCurrency, formatPercent } from "@/lib/utils";
 
 type ProductsManagerProps = {
   initialProducts: Product[];
   categories: ProductCategory[];
+  currentPlan: SubscriptionPlan;
 };
 
-export function ProductsManager({ initialProducts, categories }: ProductsManagerProps) {
+export function ProductsManager({
+  initialProducts,
+  categories,
+  currentPlan,
+}: ProductsManagerProps) {
   const [products, setProducts] = usePersistentState(
     "righthand:products",
     initialProducts,
@@ -46,6 +52,12 @@ export function ProductsManager({ initialProducts, categories }: ProductsManager
   }
 
   function addProduct(formData: FormData) {
+    if (currentPlan === "free" && products.length >= freePlanLimits.products) {
+      setMessage(`El plan Gratis permite hasta ${freePlanLimits.products} productos.`);
+      setShowForm(false);
+      return;
+    }
+
     const price = Number(formData.get("price") || 0);
     const cost = Number(formData.get("cost") || 0);
     const first = initialProducts[0];
@@ -77,8 +89,17 @@ export function ProductsManager({ initialProducts, categories }: ProductsManager
           <h1 className="text-3xl font-black tracking-normal text-primary">
             Productos y margen
           </h1>
+          {currentPlan === "free" ? (
+            <p className="mt-2 text-sm text-muted-foreground">
+              Plan {planDetails.free.label}: {products.length}/{freePlanLimits.products} productos.
+            </p>
+          ) : null}
         </div>
-        <Button type="button" onClick={() => setShowForm(true)}>
+        <Button
+          type="button"
+          disabled={currentPlan === "free" && products.length >= freePlanLimits.products}
+          onClick={() => setShowForm(true)}
+        >
           <Plus className="h-4 w-4" aria-hidden="true" />
           Nuevo producto
         </Button>

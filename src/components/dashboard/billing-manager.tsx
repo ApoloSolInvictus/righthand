@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle2, ShieldCheck } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,7 +40,7 @@ type PayPalSubscriptionData = {
 
 type PayPalButtonsActions = {
   subscription: {
-    create: (input: { plan_id: string }) => Promise<string>;
+    create: (input: { plan_id: string; custom_id?: string }) => Promise<string>;
   };
 };
 
@@ -90,15 +90,72 @@ function planLabel(plan: SubscriptionPlan) {
   return plan;
 }
 
-export function BillingManager({ currentPlan }: { currentPlan: SubscriptionPlan }) {
+export function BillingManager({
+  currentPlan,
+  businessId,
+  isOwnerOverride,
+}: {
+  currentPlan: SubscriptionPlan;
+  businessId: string;
+  isOwnerOverride: boolean;
+}) {
   const [plan, setPlan] = usePersistentState<SubscriptionPlan>(
-    "righthand:billing-plan",
+    `righthand:billing-plan:${businessId}`,
     currentPlan,
   );
   const [sdkReady, setSdkReady] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const renderedPlans = useRef<Set<string>>(new Set());
+
+  const activateSubscription = useCallback(
+    async (item: (typeof plans)[number], data: PayPalSubscriptionData) => {
+      const subscriptionId = data.subscriptionID;
+
+      if (!subscriptionId) {
+        setPlan(item.id);
+        setMessage(`PayPal aprobo ${item.name}. El webhook terminara la activacion.`);
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/paypal/activate-subscription", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            plan: item.id,
+            planId: item.planId,
+            subscriptionId,
+          }),
+        });
+
+        const payload = (await response.json()) as {
+          plan?: SubscriptionPlan;
+          mode?: string;
+          status?: string;
+          error?: string;
+        };
+
+        if (!response.ok) {
+          throw new Error(payload.error || "PayPal activation failed");
+        }
+
+        const activatedPlan = payload.plan || item.id;
+        setPlan(activatedPlan);
+        setError("");
+        setMessage(
+          `Suscripcion ${item.name} aprobada: ${subscriptionId}. Servicios ${activatedPlan.toUpperCase()} activos${payload.mode === "demo" ? " en modo demo" : ""}.`,
+        );
+      } catch (activationError) {
+        console.error("PayPal activation persistence failed", activationError);
+        setPlan(item.id);
+        setMessage(
+          `PayPal aprobo ${item.name}: ${subscriptionId}. Si el webhook esta activo, la base se sincronizara automaticamente.`,
+        );
+      }
+    },
+    [setPlan],
+  );
 
   useEffect(() => {
     if (window.paypal) {
@@ -152,16 +209,11 @@ export function BillingManager({ currentPlan }: { currentPlan: SubscriptionPlan 
           createSubscription(_data, actions) {
             return actions.subscription.create({
               plan_id: item.planId,
+              custom_id: businessId,
             });
           },
           onApprove(data) {
-            setPlan(item.id);
-            setError("");
-            setMessage(
-              `Suscripcion ${item.name} aprobada: ${
-                data.subscriptionID || "pendiente de confirmacion"
-              }.`,
-            );
+            void activateSubscription(item, data);
           },
           onError(paypalError) {
             console.error("PayPal subscription failed", paypalError);
@@ -177,7 +229,7 @@ export function BillingManager({ currentPlan }: { currentPlan: SubscriptionPlan 
           setError(`No se pudo renderizar el boton de PayPal para ${item.name}.`);
         });
     });
-  }, [sdkReady, setPlan]);
+  }, [activateSubscription, businessId, sdkReady]);
 
   return (
     <div className="grid gap-6">
@@ -189,6 +241,11 @@ export function BillingManager({ currentPlan }: { currentPlan: SubscriptionPlan 
         <p className="mt-2 text-muted-foreground">
           Plan actual: <span className="font-semibold">{planLabel(plan)}</span>
         </p>
+        {isOwnerOverride ? (
+          <p className="mt-2 text-sm font-medium text-success">
+            Tu correo maestro tiene acceso Pro permanente.
+          </p>
+        ) : null}
       </div>
 
       {message ? (

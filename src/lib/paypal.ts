@@ -1,3 +1,6 @@
+import { paidPlanFromId } from "@/lib/plans";
+import type { SubscriptionPlan } from "@/lib/types";
+
 const PAYPAL_API_BASE =
   process.env.PAYPAL_ENVIRONMENT === "live"
     ? "https://api-m.paypal.com"
@@ -10,6 +13,12 @@ export function getPayPalPlanId(plan: string) {
   };
 
   return planIds[plan];
+}
+
+export function getPlanFromPayPalPlanId(
+  planId: string | null | undefined,
+): SubscriptionPlan | null {
+  return paidPlanFromId(planId);
 }
 
 export function hasPayPalEnv() {
@@ -78,6 +87,33 @@ export async function createPayPalSubscription({
     id: string;
     status: string;
     links?: Array<{ href: string; rel: string }>;
+  }>;
+}
+
+export async function getPayPalSubscription(subscriptionId: string) {
+  const accessToken = await getPayPalAccessToken();
+  const response = await fetch(
+    `${PAYPAL_API_BASE}/v1/billing/subscriptions/${subscriptionId}`,
+    {
+      headers: {
+        authorization: `Bearer ${accessToken}`,
+        "content-type": "application/json",
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`PayPal subscription lookup failed with ${response.status}`);
+  }
+
+  return response.json() as Promise<{
+    id: string;
+    plan_id?: string;
+    custom_id?: string;
+    status?: string;
+    billing_info?: {
+      next_billing_time?: string;
+    };
   }>;
 }
 
