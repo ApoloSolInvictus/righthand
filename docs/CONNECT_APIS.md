@@ -103,13 +103,14 @@ OPENAI_MODEL=gpt-5.4-mini
 OPENAI_TIMEOUT_MS=15000
 ```
 
-Endpoint que usa esta key:
+Endpoints que usan esta key:
 
 ```http
 POST /api/ai/delivery-manager
+POST /api/ai/store-concierge
 ```
 
-Si no hay key, o si OpenAI no responde antes del timeout, el endpoint responde con heuristica local.
+Si no hay key, o si OpenAI no responde antes del timeout, los endpoints responden con heuristica local. El AI Store Concierge usa Supabase cuando `SUPABASE_SERVICE_ROLE_KEY` esta configurada y recomienda tiendas publicadas sin filtrar por plan.
 
 Docs utiles:
 

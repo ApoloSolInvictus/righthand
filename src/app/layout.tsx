@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+
+import { StoreConciergeChat } from "@/components/ai/store-concierge-chat";
+
 import "./globals.css";
 
 const geistSans = localFont({
@@ -30,6 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <StoreConciergeChat />
       </body>
     </html>
   );

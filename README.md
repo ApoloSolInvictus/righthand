@@ -10,6 +10,7 @@ Slogan: **La mano derecha de tu tienda.**
 - **Dominio multi-tenant:** todas las tablas operativas usan `business_id`; miembros y roles viven en `business_members`.
 - **Datos:** Supabase Auth, Postgres, Storage y RLS. El MVP corre localmente con datos demo en `src/lib/mock-data.ts`.
 - **AI Manager:** `POST /api/ai/delivery-manager` usa OpenAI Responses API con salida estructurada; si no hay `OPENAI_API_KEY` o hay timeout, responde con heuristica local.
+- **AI Concierge:** `POST /api/ai/store-concierge` alimenta el chat global multilingue con negocios, tiendas, productos, horarios y zonas de entrega.
 - **Pagos:** botones oficiales PayPal Live para suscripciones PYME/Pro y webhook para eventos.
 - **Entregas:** `generateWazeLink({ lat, lng, address })` usa lat/lng cuando existen y fallback por direccion.
 
@@ -35,6 +36,7 @@ Slogan: **La mano derecha de tu tienda.**
 - `/tienda/[slug]/checkout`
 - `/order/[publicTrackingCode]`
 - `/api/health`
+- `/api/ai/store-concierge`
 
 ## Instalacion Local
 
@@ -45,7 +47,7 @@ npm run dev
 
 Abre `http://localhost:3000`.
 
-Sin variables de entorno, login/register entran en modo demo y el AI Manager usa heuristica local. Supabase queda bloqueado aunque existan `NEXT_PUBLIC_SUPABASE_*` hasta activar `NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=true`; esto evita mezclar datos con un proyecto Supabase equivocado.
+Sin variables de entorno, login/register entran en modo demo y los endpoints de IA usan heuristica local. Supabase queda bloqueado aunque existan `NEXT_PUBLIC_SUPABASE_*` hasta activar `NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=true`; esto evita mezclar datos con un proyecto Supabase equivocado.
 
 Para conectar servicios reales:
 
@@ -155,6 +157,16 @@ POST /api/ai/delivery-manager
 ```
 
 Recibe pedidos pendientes, direcciones, zonas, mensajeros disponibles, horario y tiempos estimados. Devuelve prioridades, rutas, Waze links, mensajero recomendado, mensajes transaccionales, alertas de atraso y sugerencias operativas.
+
+## AI Store Concierge
+
+Endpoint:
+
+```http
+POST /api/ai/store-concierge
+```
+
+El boton flotante global consulta este endpoint para responder en el idioma del visitante y recomendar negocios afiliados de RightHand sin filtrar por plan. En produccion lee tiendas publicadas desde Supabase con `SUPABASE_SERVICE_ROLE_KEY`; en local o sin llave usa los datos demo.
 
 ## PayPal
 
