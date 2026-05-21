@@ -7,6 +7,7 @@ import {
   LoaderCircle,
   MapPin,
   MessageCircle,
+  Navigation,
   Send,
   Store,
   X,
@@ -27,6 +28,8 @@ type Recommendation = {
   reason: string;
   location: string;
   hours: string;
+  physicalAddress: string;
+  wazeUrl: string;
   products: string[];
   deliveryZones: string[];
 };
@@ -236,7 +239,8 @@ export function StoreConciergeChat() {
                           <div className="mt-3 grid gap-2 text-xs text-muted-foreground">
                             <span className="flex items-center gap-2">
                               <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
-                              {recommendation.location}
+                              {recommendation.physicalAddress ||
+                                recommendation.location}
                             </span>
                             <span className="flex items-center gap-2">
                               <Clock className="h-3.5 w-3.5" aria-hidden="true" />
@@ -266,12 +270,24 @@ export function StoreConciergeChat() {
                             </div>
                           ) : null}
 
-                          <Button asChild size="sm" className="mt-3 w-full">
-                            <Link href={recommendation.storeUrl}>
-                              <Store className="h-4 w-4" aria-hidden="true" />
-                              Ver tienda
-                            </Link>
-                          </Button>
+                          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                            <Button asChild size="sm">
+                              <Link href={recommendation.storeUrl}>
+                                <Store className="h-4 w-4" aria-hidden="true" />
+                                Ver tienda
+                              </Link>
+                            </Button>
+                            <Button asChild size="sm" variant="delivery">
+                              <a
+                                href={recommendation.wazeUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                <Navigation className="h-4 w-4" aria-hidden="true" />
+                                Waze
+                              </a>
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </div>

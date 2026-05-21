@@ -1,4 +1,4 @@
-import { Clock3, MapPinned, ShoppingCart } from "lucide-react";
+import { Clock3, MapPinned, Navigation, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -14,6 +14,7 @@ import {
   stores,
 } from "@/lib/mock-data";
 import { crcCurrency } from "@/lib/utils";
+import { generateWazeLink } from "@/lib/waze";
 
 export function generateStaticParams() {
   return stores.map((store) => ({ slug: store.slug }));
@@ -36,6 +37,11 @@ export default async function StorefrontPage({
   const categories = productCategories.filter(
     (category) => category.businessId === store.businessId,
   );
+  const storeWazeLink = generateWazeLink({
+    lat: store.lat,
+    lng: store.lng,
+    address: store.physicalAddress,
+  });
 
   return (
     <main className="min-h-screen bg-background">
@@ -84,12 +90,30 @@ export default async function StorefrontPage({
                 <Clock3 className="mr-1 h-3 w-3" aria-hidden="true" />
                 {store.hours}
               </Badge>
+              <Badge variant="secondary">
+                <MapPinned className="mr-1 h-3 w-3" aria-hidden="true" />
+                {store.physicalAddress}
+              </Badge>
               {store.deliveryZones.map((zone) => (
                 <Badge key={zone.id} variant="delivery">
                   <MapPinned className="mr-1 h-3 w-3" aria-hidden="true" />
                   {zone.name} {crcCurrency(zone.fee)}
                 </Badge>
               ))}
+            </div>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button asChild variant="delivery">
+                <a href={storeWazeLink} target="_blank" rel="noreferrer">
+                  <Navigation className="h-4 w-4" aria-hidden="true" />
+                  Llegar con Waze
+                </a>
+              </Button>
+              <Button asChild variant="secondary">
+                <Link href={`/tienda/${store.slug}/checkout`}>
+                  <ShoppingCart className="h-4 w-4" aria-hidden="true" />
+                  Hacer pedido
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
@@ -117,6 +141,18 @@ export default async function StorefrontPage({
               <p className="text-sm leading-6 text-muted-foreground">
                 {business.offerSummary}
               </p>
+              <div className="mt-4 rounded-md border bg-secondary/40 p-4">
+                <p className="text-sm font-semibold text-primary">Ubicacion para visitar</p>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  {store.physicalAddress}
+                </p>
+                <Button asChild className="mt-3" size="sm" variant="delivery">
+                  <a href={storeWazeLink} target="_blank" rel="noreferrer">
+                    <Navigation className="h-4 w-4" aria-hidden="true" />
+                    Abrir en Waze
+                  </a>
+                </Button>
+              </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {business.searchTags.map((tag) => (
                   <Badge key={tag} variant="outline">

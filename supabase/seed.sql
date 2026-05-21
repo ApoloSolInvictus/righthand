@@ -65,7 +65,8 @@ on conflict (id) do nothing;
 
 insert into public.stores (
   id, business_id, slug, name, description, logo_url, cover_url,
-  primary_color, success_color, delivery_color, hours, is_published
+  primary_color, success_color, delivery_color,
+  physical_address, latitude, longitude, hours, is_published
 )
 values
   (
@@ -79,6 +80,9 @@ values
     '#103A5C',
     '#219E6B',
     '#F97316',
+    'San Pedro de Montes de Oca, San Jose, Costa Rica',
+    9.9329000,
+    -84.0508000,
     '{"monday":"7:00-20:00","saturday":"7:00-20:00"}',
     true
   ),
@@ -93,6 +97,9 @@ values
     '#173B57',
     '#22A06B',
     '#EA7A24',
+    'Centro de Escazu, San Jose, Costa Rica',
+    9.9361000,
+    -84.1372000,
     '{"monday":"10:00-19:00","friday":"10:00-19:00"}',
     true
   ),
@@ -107,6 +114,9 @@ values
     '#103A5C',
     '#1F9D6A',
     '#F97316',
+    'Rohrmoser, frente a Plaza Mayor, San Jose, Costa Rica',
+    9.9431000,
+    -84.1256000,
     '{"daily":"8:00-21:00"}',
     true
   )

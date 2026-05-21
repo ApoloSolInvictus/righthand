@@ -50,16 +50,21 @@ Docs utiles:
 4. Ejecuta `supabase/migrations/0002_accounting_invoices.sql`.
 5. Ejecuta `supabase/migrations/0003_subscription_entitlements.sql`.
 6. Ejecuta `supabase/migrations/0004_business_discovery_profile.sql`.
-7. Ejecuta `supabase/seed.sql` si quieres los datos demo en la base.
-8. Ve a Project Settings / API.
-9. Copia Project URL.
-10. Copia Publishable key o anon key.
-11. Copia Service role key solo para servidor.
-12. Agrega en Vercel:
+7. Ejecuta `supabase/migrations/0005_store_waze_locations.sql`.
+8. Ejecuta `supabase/seed.sql` si quieres los datos demo en la base.
+9. Ve a Project Settings / API Keys.
+10. Copia Project URL.
+11. Copia Publishable key o anon key.
+12. Copia una Secret key o la legacy Service role key solo para servidor.
+13. Agrega en Vercel:
 
 Nota: si al ejecutar `0002_accounting_invoices.sql` aparece
 `relation "public.businesses" does not exist`, falta el paso 3. Ejecuta primero
 `0001_righthand_init.sql` y luego vuelve a correr `0002`.
+
+Nota: si una copia vieja de `0004_business_discovery_profile.sql` muestra
+`generation expression is not immutable`, usa la version actual del repo. El
+indice de busqueda ahora se mantiene con trigger y ya no usa columna generada.
 
 ```env
 NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=false
@@ -79,10 +84,12 @@ NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=true
 Importante:
 
 - Nunca pongas `SUPABASE_SERVICE_ROLE_KEY` con prefijo `NEXT_PUBLIC_`.
+- En Supabase, la llave recomendada para servidor puede aparecer como `Secret key` (`sb_secret_...`). Si tu proyecto todavia usa llaves legacy, usa `service_role`. En ambos casos pegala en Vercel como `SUPABASE_SERVICE_ROLE_KEY`.
 - No reutilices un proyecto Supabase de otra app. Si usas la misma URL/key, los datos quedan en la misma base.
 - RLS ya esta activado en el SQL.
 - `invoices` guarda facturas y auxiliar IVA por `business_id`, visible para owner/admin/sales.
 - `businesses` guarda provincia, ciudad, tipo, estilo, oferta, tags e indice de busqueda para el directorio publico.
+- `stores` guarda direccion fisica, latitud y longitud para el boton Waze publico.
 - Buckets creados: `store-assets` y `delivery-proofs`.
 
 Docs utiles:
@@ -102,6 +109,10 @@ OPENAI_API_KEY=sk-...
 OPENAI_MODEL=gpt-5.4-mini
 OPENAI_TIMEOUT_MS=15000
 ```
+
+`OPENAI_TIMEOUT_MS` no se copia de OpenAI. Es un valor propio de RightHand:
+usa `15000` para esperar hasta 15 segundos antes de activar la respuesta
+heuristica local.
 
 Endpoints que usan esta key:
 

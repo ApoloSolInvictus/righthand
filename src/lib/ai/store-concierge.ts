@@ -8,6 +8,7 @@ import {
 } from "@/lib/mock-data";
 import type { BusinessCategory, SubscriptionPlan } from "@/lib/types";
 import { crcCurrency } from "@/lib/utils";
+import { generateWazeLink } from "@/lib/waze";
 
 export const StoreConciergeInputSchema = z.object({
   message: z.string().trim().min(1).max(800),
@@ -34,6 +35,8 @@ export const StoreConciergeResponseSchema = z.object({
       reason: z.string(),
       location: z.string(),
       hours: z.string(),
+      physicalAddress: z.string(),
+      wazeUrl: z.string(),
       products: z.array(z.string()),
       deliveryZones: z.array(z.string()),
     }),
@@ -58,6 +61,8 @@ export type StoreConciergeBusiness = {
   searchTags: string[];
   storeUrl: string;
   hours: string;
+  physicalAddress: string;
+  wazeUrl: string;
   products: Array<{
     name: string;
     description: string;
@@ -128,6 +133,12 @@ export function getMockStoreConciergeContext(): StoreConciergeContext {
         searchTags: business.searchTags,
         storeUrl: `/tienda/${business.slug}`,
         hours: store?.hours || "Horario no publicado",
+        physicalAddress: store?.physicalAddress || `${business.city}, ${business.province}`,
+        wazeUrl: generateWazeLink({
+          lat: store?.lat,
+          lng: store?.lng,
+          address: store?.physicalAddress || `${business.city}, ${business.province}`,
+        }),
         products: businessProducts,
         deliveryZones: deliveryZones
           .filter((zone) => zone.businessId === business.id)
@@ -234,6 +245,7 @@ export function heuristicStoreConcierge(
           business.city,
           business.businessStyle,
           business.offerSummary,
+          business.physicalAddress,
           business.searchTags.join(" "),
           business.products.map((product) => product.name).join(" "),
           business.products.map((product) => product.description).join(" "),
@@ -269,6 +281,8 @@ export function heuristicStoreConcierge(
     reason: `${business.businessStyle}: ${business.offerSummary}`,
     location: `${business.city}, ${business.province}`,
     hours: business.hours,
+    physicalAddress: business.physicalAddress,
+    wazeUrl: business.wazeUrl,
     products: business.products.slice(0, 4).map((product) => product.name),
     deliveryZones: business.deliveryZones.map(
       (zone) => `${zone.name} (${zone.etaMinutes} min, ${crcCurrency(zone.fee)})`,

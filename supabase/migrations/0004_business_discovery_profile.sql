@@ -6,6 +6,7 @@ begin
   if to_regclass('public.businesses') is null
     or to_regclass('public.business_members') is null
     or to_regclass('public.stores') is null
+    or to_regnamespace('app_private') is null
   then
     raise exception
       'RightHand base schema is missing. Run migrations 0001 through 0003 first, then rerun 0004_business_discovery_profile.sql.';
@@ -29,14 +30,54 @@ exception
   when duplicate_object then null;
 end $$;
 
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'businesses'
+      and column_name = 'search_vector'
+      and is_generated <> 'NEVER'
+  ) then
+    alter table public.businesses drop column search_vector;
+  end if;
+end $$;
+
 alter table public.businesses
-  add column if not exists search_vector tsvector generated always as (
-    setweight(to_tsvector('simple', coalesce(name, '')), 'A') ||
-    setweight(to_tsvector('simple', coalesce(city, '') || ' ' || coalesce(province, '')), 'B') ||
-    setweight(to_tsvector('simple', coalesce(business_style, '')), 'B') ||
-    setweight(to_tsvector('simple', coalesce(offer_summary, '')), 'C') ||
-    setweight(to_tsvector('simple', array_to_string(search_tags, ' ')), 'C')
-  ) stored;
+  add column if not exists search_vector tsvector;
+
+create or replace function app_private.set_business_search_vector()
+returns trigger
+language plpgsql
+set search_path = public, app_private
+as $$
+begin
+  new.search_vector :=
+    setweight(to_tsvector('simple', coalesce(new.name, '')), 'A') ||
+    setweight(to_tsvector('simple', coalesce(new.city, '') || ' ' || coalesce(new.province, '')), 'B') ||
+    setweight(to_tsvector('simple', coalesce(new.business_style, '')), 'B') ||
+    setweight(to_tsvector('simple', coalesce(new.offer_summary, '')), 'C') ||
+    setweight(to_tsvector('simple', array_to_string(new.search_tags, ' ')), 'C');
+
+  return new;
+end;
+$$;
+
+drop trigger if exists businesses_search_vector_tsv on public.businesses;
+
+create trigger businesses_search_vector_tsv
+before insert or update of name, province, city, business_style, offer_summary, search_tags
+on public.businesses
+for each row execute function app_private.set_business_search_vector();
+
+update public.businesses
+set search_vector =
+  setweight(to_tsvector('simple', coalesce(name, '')), 'A') ||
+  setweight(to_tsvector('simple', coalesce(city, '') || ' ' || coalesce(province, '')), 'B') ||
+  setweight(to_tsvector('simple', coalesce(business_style, '')), 'B') ||
+  setweight(to_tsvector('simple', coalesce(offer_summary, '')), 'C') ||
+  setweight(to_tsvector('simple', array_to_string(search_tags, ' ')), 'C');
 
 create index if not exists idx_businesses_location_category
   on public.businesses(province, city, business_category);

@@ -1,6 +1,6 @@
 "use client";
 
-import { ImagePlus, Paintbrush, Save } from "lucide-react";
+import { ImagePlus, Navigation, Paintbrush, Save } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { readFileAsDataUrl, usePersistentState } from "@/lib/local-demo-store";
 import type { DeliveryZone, Store } from "@/lib/types";
 import { crcCurrency } from "@/lib/utils";
+import { generateWazeLink } from "@/lib/waze";
 
 type StoreBuilderClientProps = {
   initialStore: Store;
@@ -23,6 +24,18 @@ export function StoreBuilderClient({ initialStore, zones }: StoreBuilderClientPr
   const [message, setMessage] = useState("");
   const logoInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
+  const profile: Store = {
+    ...initialStore,
+    ...store,
+    physicalAddress: store.physicalAddress || initialStore.physicalAddress,
+    lat: store.lat ?? initialStore.lat,
+    lng: store.lng ?? initialStore.lng,
+  };
+  const wazeLink = generateWazeLink({
+    lat: profile.lat,
+    lng: profile.lng,
+    address: profile.physicalAddress,
+  });
 
   async function handleAsset(file: File | undefined, field: "logoUrl" | "coverUrl") {
     if (!file) {
@@ -50,7 +63,7 @@ export function StoreBuilderClient({ initialStore, zones }: StoreBuilderClientPr
               <Label htmlFor="storeName">Nombre</Label>
               <Input
                 id="storeName"
-                value={store.name}
+                value={profile.name}
                 onChange={(event) =>
                   setStore((current) => ({ ...current, name: event.target.value }))
                 }
@@ -60,7 +73,7 @@ export function StoreBuilderClient({ initialStore, zones }: StoreBuilderClientPr
               <Label htmlFor="description">Descripcion</Label>
               <Textarea
                 id="description"
-                value={store.description}
+                value={profile.description}
                 onChange={(event) =>
                   setStore((current) => ({
                     ...current,
@@ -73,18 +86,69 @@ export function StoreBuilderClient({ initialStore, zones }: StoreBuilderClientPr
               <Label htmlFor="hours">Horario</Label>
               <Input
                 id="hours"
-                value={store.hours}
+                value={profile.hours}
                 onChange={(event) =>
                   setStore((current) => ({ ...current, hours: event.target.value }))
                 }
               />
             </div>
+            <div className="grid gap-2">
+              <Label htmlFor="physicalAddress">Direccion para visitar</Label>
+              <Textarea
+                id="physicalAddress"
+                value={profile.physicalAddress}
+                onChange={(event) =>
+                  setStore((current) => ({
+                    ...current,
+                    physicalAddress: event.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-2">
+                <Label htmlFor="lat">Latitud Waze</Label>
+                <Input
+                  id="lat"
+                  type="number"
+                  step="0.0000001"
+                  value={profile.lat ?? ""}
+                  onChange={(event) =>
+                    setStore((current) => ({
+                      ...current,
+                      lat: event.target.value ? Number(event.target.value) : undefined,
+                    }))
+                  }
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="lng">Longitud Waze</Label>
+                <Input
+                  id="lng"
+                  type="number"
+                  step="0.0000001"
+                  value={profile.lng ?? ""}
+                  onChange={(event) =>
+                    setStore((current) => ({
+                      ...current,
+                      lng: event.target.value ? Number(event.target.value) : undefined,
+                    }))
+                  }
+                />
+              </div>
+            </div>
+            <Button asChild type="button" variant="outline">
+              <a href={wazeLink} target="_blank" rel="noreferrer">
+                <Navigation className="h-4 w-4" aria-hidden="true" />
+                Probar Waze
+              </a>
+            </Button>
             <div className="grid gap-3 md:grid-cols-3">
               <div className="grid gap-2">
                 <Label>Azul profundo</Label>
                 <Input
                   type="color"
-                  value={store.primaryColor}
+                  value={profile.primaryColor}
                   onChange={(event) =>
                     setStore((current) => ({
                       ...current,
@@ -97,7 +161,7 @@ export function StoreBuilderClient({ initialStore, zones }: StoreBuilderClientPr
                 <Label>Verde exito</Label>
                 <Input
                   type="color"
-                  value={store.successColor}
+                  value={profile.successColor}
                   onChange={(event) =>
                     setStore((current) => ({
                       ...current,
@@ -110,7 +174,7 @@ export function StoreBuilderClient({ initialStore, zones }: StoreBuilderClientPr
                 <Label>Acento entregas</Label>
                 <Input
                   type="color"
-                  value={store.deliveryColor}
+                  value={profile.deliveryColor}
                   onChange={(event) =>
                     setStore((current) => ({
                       ...current,
@@ -165,24 +229,33 @@ export function StoreBuilderClient({ initialStore, zones }: StoreBuilderClientPr
         </Card>
 
         <Card className="overflow-hidden">
-          <img src={store.coverUrl} alt="" className="h-44 w-full object-cover" />
+          <img src={profile.coverUrl} alt="" className="h-44 w-full object-cover" />
           <CardContent className="p-5">
             <div className="mb-4 flex items-center gap-3">
               <img
-                src={store.logoUrl}
+                src={profile.logoUrl}
                 alt=""
                 className="h-14 w-14 rounded-md object-cover"
               />
               <div>
-                <h2 className="font-bold">{store.name}</h2>
-                <p className="text-sm text-muted-foreground">/{store.slug}</p>
+                <h2 className="font-bold">{profile.name}</h2>
+                <p className="text-sm text-muted-foreground">/{profile.slug}</p>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground">{store.description}</p>
+            <p className="text-sm text-muted-foreground">{profile.description}</p>
+            <p className="mt-3 text-sm font-medium text-primary">
+              {profile.physicalAddress}
+            </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <Badge variant="success">Publicado</Badge>
               <Badge variant="delivery">Express</Badge>
             </div>
+            <Button asChild className="mt-4 w-full" size="sm" variant="delivery">
+              <a href={wazeLink} target="_blank" rel="noreferrer">
+                <Navigation className="h-4 w-4" aria-hidden="true" />
+                Abrir en Waze
+              </a>
+            </Button>
           </CardContent>
         </Card>
       </section>
@@ -194,7 +267,7 @@ export function StoreBuilderClient({ initialStore, zones }: StoreBuilderClientPr
         <CardContent className="grid gap-4 md:grid-cols-2">
           <div className="rounded-md border p-4">
             <p className="font-semibold">Horario actual</p>
-            <p className="mt-2 text-sm text-muted-foreground">{store.hours}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{profile.hours}</p>
           </div>
           <div className="grid gap-3">
             {zones.map((zone) => (

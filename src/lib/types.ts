@@ -35,6 +35,9 @@ export type Store = {
   description: string;
   logoUrl: string;
   coverUrl: string;
+  physicalAddress: string;
+  lat?: number;
+  lng?: number;
   primaryColor: string;
   successColor: string;
   deliveryColor: string;

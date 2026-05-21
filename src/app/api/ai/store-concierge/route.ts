@@ -13,6 +13,7 @@ import {
 } from "@/lib/ai/store-concierge";
 import { createAdminClient, hasSupabaseAdminEnv } from "@/lib/supabase/admin";
 import type { BusinessCategory, SubscriptionPlan } from "@/lib/types";
+import { generateWazeLink } from "@/lib/waze";
 
 export const runtime = "nodejs";
 
@@ -57,6 +58,9 @@ type StoreRow = {
   slug: string;
   name: string;
   description: string | null;
+  physical_address: string | null;
+  latitude: number | string | null;
+  longitude: number | string | null;
   hours: unknown;
   is_published: boolean;
   businesses: BusinessRef | BusinessRef[] | null;
@@ -81,6 +85,15 @@ function getBusinessRef(store: StoreRow) {
   return Array.isArray(store.businesses) ? store.businesses[0] : store.businesses;
 }
 
+function parseCoordinate(value: number | string | null | undefined) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  const coordinate = Number(value);
+  return Number.isFinite(coordinate) ? coordinate : null;
+}
+
 async function getSupabaseStoreConciergeContext(): Promise<StoreConciergeContext | null> {
   if (!hasSupabaseAdminEnv()) {
     return null;
@@ -96,6 +109,9 @@ async function getSupabaseStoreConciergeContext(): Promise<StoreConciergeContext
         slug,
         name,
         description,
+        physical_address,
+        latitude,
+        longitude,
         hours,
         is_published,
         businesses (
@@ -171,6 +187,9 @@ async function getSupabaseStoreConciergeContext(): Promise<StoreConciergeContext
     generatedAt: new Date().toISOString(),
     businesses: stores.map((store): StoreConciergeBusiness => {
       const business = getBusinessRef(store)!;
+      const physicalAddress =
+        store.physical_address ||
+        `${business.name}, ${business.city || "Costa Rica"}, ${business.province || "Costa Rica"}`;
 
       return {
         id: business.id,
@@ -186,6 +205,12 @@ async function getSupabaseStoreConciergeContext(): Promise<StoreConciergeContext
         searchTags: business.search_tags || [],
         storeUrl: `/tienda/${store.slug || business.slug}`,
         hours: formatStoreHours(store.hours),
+        physicalAddress,
+        wazeUrl: generateWazeLink({
+          lat: parseCoordinate(store.latitude),
+          lng: parseCoordinate(store.longitude),
+          address: physicalAddress,
+        }),
         products: (productsByBusiness.get(store.business_id) || []).map((product) => ({
           name: product.name,
           description: product.description || "",
@@ -234,7 +259,7 @@ export async function POST(request: Request) {
       client.responses.parse({
         model: process.env.OPENAI_MODEL || "gpt-5.4-mini",
         instructions:
-          "Eres RightHand Concierge, el vendedor estrella de una red de PYMES de Costa Rica. Responde siempre en el idioma del visitante. Recomienda negocios, productos, horarios, ubicaciones y zonas de entrega usando solo el contexto recibido. Incluye negocios gratis y pagados por igual; no favorezcas ningun plan. Si no hay una coincidencia exacta, sugiere alternativas cercanas y pide un dato para afinar. No inventes horarios, precios ni productos.",
+          "Eres RightHand Concierge, el vendedor estrella de una red de PYMES de Costa Rica. Responde siempre en el idioma del visitante. Recomienda negocios, productos, horarios, ubicaciones, enlaces Waze y zonas de entrega usando solo el contexto recibido. Incluye negocios gratis y pagados por igual; no favorezcas ningun plan. Si no hay una coincidencia exacta, sugiere alternativas cercanas y pide un dato para afinar. No inventes horarios, precios ni productos.",
         input: JSON.stringify({
           site:
             "RightHand: La mano derecha de tu tienda. SaaS y directorio publico de negocios afiliados en Costa Rica.",

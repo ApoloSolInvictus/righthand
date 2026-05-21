@@ -95,6 +95,9 @@ export const stores: Store[] = [
       "https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=300&q=80",
     coverUrl:
       "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1600&q=80",
+    physicalAddress: "San Pedro de Montes de Oca, San Jose, Costa Rica",
+    lat: 9.9329,
+    lng: -84.0508,
     primaryColor: "#103A5C",
     successColor: "#219E6B",
     deliveryColor: "#F97316",
@@ -112,6 +115,9 @@ export const stores: Store[] = [
       "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=300&q=80",
     coverUrl:
       "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1600&q=80",
+    physicalAddress: "Centro de Escazu, San Jose, Costa Rica",
+    lat: 9.9361,
+    lng: -84.1372,
     primaryColor: "#173B57",
     successColor: "#22A06B",
     deliveryColor: "#EA7A24",
@@ -129,6 +135,9 @@ export const stores: Store[] = [
       "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=300&q=80",
     coverUrl:
       "https://images.unsplash.com/photo-1631549916768-4119b2e5f926?auto=format&fit=crop&w=1600&q=80",
+    physicalAddress: "Rohrmoser, frente a Plaza Mayor, San Jose, Costa Rica",
+    lat: 9.9431,
+    lng: -84.1256,
     primaryColor: "#103A5C",
     successColor: "#1F9D6A",
     deliveryColor: "#F97316",

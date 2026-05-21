@@ -12,7 +12,7 @@ Slogan: **La mano derecha de tu tienda.**
 - **AI Manager:** `POST /api/ai/delivery-manager` usa OpenAI Responses API con salida estructurada; si no hay `OPENAI_API_KEY` o hay timeout, responde con heuristica local.
 - **AI Concierge:** `POST /api/ai/store-concierge` alimenta el chat global multilingue con negocios, tiendas, productos, horarios y zonas de entrega.
 - **Pagos:** botones oficiales PayPal Live para suscripciones PYME/Pro y webhook para eventos.
-- **Entregas:** `generateWazeLink({ lat, lng, address })` usa lat/lng cuando existen y fallback por direccion.
+- **Waze:** `generateWazeLink({ lat, lng, address })` usa lat/lng cuando existen y fallback por direccion para entregas y visitas a tienda.
 
 ## Paginas Incluidas
 
@@ -146,7 +146,17 @@ supabase/migrations/0004_business_discovery_profile.sql
 ```
 
 Esta migracion agrega provincia, ciudad, tipo de negocio, estilo, resumen de
-oferta, palabras clave e indice de busqueda a `businesses`.
+oferta, palabras clave e indice de busqueda a `businesses`. La busqueda se
+mantiene con trigger para evitar errores de columnas generadas no inmutables.
+
+Migracion de ubicacion Waze:
+
+```bash
+supabase/migrations/0005_store_waze_locations.sql
+```
+
+Esta migracion agrega direccion fisica, latitud y longitud a `stores` para
+mostrar el boton "Abrir en Waze" en cada tienda publica.
 
 ## AI Delivery Manager
 
