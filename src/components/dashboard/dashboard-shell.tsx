@@ -3,6 +3,7 @@ import {
   Boxes,
   Calculator,
   CreditCard,
+  FileSearch,
   LayoutDashboard,
   MapPinned,
   PackageCheck,
@@ -26,6 +27,12 @@ const navItems: Array<{
   feature: DashboardFeature;
 }> = [
   { href: "/dashboard", label: "Resumen", icon: LayoutDashboard, feature: "dashboard" },
+  {
+    href: "/dashboard/profile",
+    label: "Perfil negocio",
+    icon: FileSearch,
+    feature: "businessProfile",
+  },
   { href: "/dashboard/store", label: "Tienda", icon: Store, feature: "store" },
   { href: "/dashboard/products", label: "Productos", icon: ShoppingBag, feature: "products" },
   { href: "/dashboard/orders", label: "Pedidos", icon: PackageCheck, feature: "orders" },

@@ -1,10 +1,66 @@
 -- Demo seed data for local development. No real customer data.
 
-insert into public.businesses (id, name, slug, legal_name, phone, email, plan)
+insert into public.businesses (
+  id,
+  name,
+  slug,
+  legal_name,
+  phone,
+  email,
+  plan,
+  province,
+  city,
+  business_category,
+  business_style,
+  offer_summary,
+  search_tags
+)
 values
-  ('11111111-1111-4111-8111-111111111111', 'Soda Luna', 'soda-luna', 'Soda Luna Demo S.A.', '+506 2222-1000', 'hola+soda@example.com', 'free'),
-  ('22222222-2222-4222-8222-222222222222', 'Moda Tica', 'moda-tica', 'Moda Tica Demo S.R.L.', '+506 2222-2000', 'hola+moda@example.com', 'free'),
-  ('33333333-3333-4333-8333-333333333333', 'Farma Central', 'farma-central', 'Farma Central Demo S.A.', '+506 2222-3000', 'hola+farma@example.com', 'free')
+  (
+    '11111111-1111-4111-8111-111111111111',
+    'Soda Luna',
+    'soda-luna',
+    'Soda Luna Demo S.A.',
+    '+506 2222-1000',
+    'hola+soda@example.com',
+    'free',
+    'San Jose',
+    'San Pedro',
+    'restaurante',
+    'Comida casera costarricense',
+    'Casados, chifrijos, frescos naturales y almuerzos ejecutivos para oficina.',
+    array['soda', 'casados', 'almuerzos', 'express', 'comida tica']
+  ),
+  (
+    '22222222-2222-4222-8222-222222222222',
+    'Moda Tica',
+    'moda-tica',
+    'Moda Tica Demo S.R.L.',
+    '+506 2222-2000',
+    'hola+moda@example.com',
+    'free',
+    'San Jose',
+    'Escazu',
+    'tienda',
+    'Ropa casual femenina',
+    'Blusas, jeans, basicos y outfits casuales con cambios coordinados.',
+    array['ropa', 'moda', 'blusas', 'jeans', 'outfits']
+  ),
+  (
+    '33333333-3333-4333-8333-333333333333',
+    'Farma Central',
+    'farma-central',
+    'Farma Central Demo S.A.',
+    '+506 2222-3000',
+    'hola+farma@example.com',
+    'free',
+    'San Jose',
+    'Rohrmoser',
+    'farmacia',
+    'Farmacia de barrio',
+    'Medicamentos, vitaminas, cuidado personal y entregas programadas.',
+    array['farmacia', 'vitaminas', 'medicamentos', 'salud', 'entrega']
+  )
 on conflict (id) do nothing;
 
 insert into public.stores (

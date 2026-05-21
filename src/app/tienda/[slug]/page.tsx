@@ -5,7 +5,14 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getStoreBySlug, products, productCategories, stores } from "@/lib/mock-data";
+import { businessCategoryLabels } from "@/lib/business-profile";
+import {
+  getBusinessBySlug,
+  getStoreBySlug,
+  products,
+  productCategories,
+  stores,
+} from "@/lib/mock-data";
 import { crcCurrency } from "@/lib/utils";
 
 export function generateStaticParams() {
@@ -19,8 +26,9 @@ export default async function StorefrontPage({
 }) {
   const { slug } = await params;
   const store = getStoreBySlug(slug);
+  const business = getBusinessBySlug(slug);
 
-  if (!store) {
+  if (!store || !business) {
     notFound();
   }
 
@@ -65,6 +73,13 @@ export default async function StorefrontPage({
             </div>
             <p className="text-lg leading-8 text-white/85">{store.description}</p>
             <div className="mt-5 flex flex-wrap gap-2">
+              <Badge variant="secondary">
+                {businessCategoryLabels[business.type]}
+              </Badge>
+              <Badge variant="secondary">
+                {business.city}, {business.province}
+              </Badge>
+              <Badge variant="delivery">{business.businessStyle}</Badge>
               <Badge variant="success">
                 <Clock3 className="mr-1 h-3 w-3" aria-hidden="true" />
                 {store.hours}
@@ -88,6 +103,30 @@ export default async function StorefrontPage({
             </Badge>
           ))}
         </div>
+        <Card className="mb-6">
+          <CardContent className="grid gap-3 p-5 md:grid-cols-[1fr_1.2fr] md:items-center">
+            <div>
+              <p className="text-sm font-semibold uppercase text-delivery">
+                Perfil del negocio
+              </p>
+              <h2 className="mt-1 text-xl font-black tracking-normal text-primary">
+                {business.businessStyle}
+              </h2>
+            </div>
+            <div>
+              <p className="text-sm leading-6 text-muted-foreground">
+                {business.offerSummary}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {business.searchTags.map((tag) => (
+                  <Badge key={tag} variant="outline">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {storeProducts.map((product) => (
             <Card key={product.id} className="overflow-hidden">

@@ -4,6 +4,7 @@ export const OWNER_PRO_EMAIL = "ronnywoods77@gmail.com";
 
 export type DashboardFeature =
   | "dashboard"
+  | "businessProfile"
   | "store"
   | "products"
   | "orders"
@@ -68,6 +69,11 @@ export const featureRules: Record<
     label: "Resumen",
     minimumPlan: "free",
     description: "Indicadores basicos del negocio.",
+  },
+  businessProfile: {
+    label: "Perfil negocio",
+    minimumPlan: "free",
+    description: "Provincia, ciudad, tipo de negocio, estilo, oferta y palabras clave.",
   },
   store: {
     label: "Tienda",

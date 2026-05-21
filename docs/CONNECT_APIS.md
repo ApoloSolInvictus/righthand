@@ -49,12 +49,13 @@ Docs utiles:
 3. Ejecuta `supabase/migrations/0001_righthand_init.sql`.
 4. Ejecuta `supabase/migrations/0002_accounting_invoices.sql`.
 5. Ejecuta `supabase/migrations/0003_subscription_entitlements.sql`.
-6. Ejecuta `supabase/seed.sql` si quieres los datos demo en la base.
-7. Ve a Project Settings / API.
-8. Copia Project URL.
-9. Copia Publishable key o anon key.
-10. Copia Service role key solo para servidor.
-11. Agrega en Vercel:
+6. Ejecuta `supabase/migrations/0004_business_discovery_profile.sql`.
+7. Ejecuta `supabase/seed.sql` si quieres los datos demo en la base.
+8. Ve a Project Settings / API.
+9. Copia Project URL.
+10. Copia Publishable key o anon key.
+11. Copia Service role key solo para servidor.
+12. Agrega en Vercel:
 
 Nota: si al ejecutar `0002_accounting_invoices.sql` aparece
 `relation "public.businesses" does not exist`, falta el paso 3. Ejecuta primero
@@ -81,6 +82,7 @@ Importante:
 - No reutilices un proyecto Supabase de otra app. Si usas la misma URL/key, los datos quedan en la misma base.
 - RLS ya esta activado en el SQL.
 - `invoices` guarda facturas y auxiliar IVA por `business_id`, visible para owner/admin/sales.
+- `businesses` guarda provincia, ciudad, tipo, estilo, oferta, tags e indice de busqueda para el directorio publico.
 - Buckets creados: `store-assets` y `delivery-proofs`.
 
 Docs utiles:

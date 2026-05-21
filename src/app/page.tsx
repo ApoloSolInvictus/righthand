@@ -12,6 +12,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BusinessDirectorySearch } from "@/components/storefront/business-directory-search";
 import { businesses } from "@/lib/mock-data";
 
 const features = [
@@ -171,8 +172,11 @@ export default function Home() {
               >
                 <p className="text-sm font-semibold text-delivery">{business.type}</p>
                 <h3 className="mt-2 text-lg font-bold">{business.name}</h3>
+                <p className="mt-1 text-xs font-semibold text-muted-foreground">
+                  {business.city}, {business.province}
+                </p>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  {business.description}
+                  {business.businessStyle}: {business.offerSummary}
                 </p>
               </Link>
             ))}
@@ -217,6 +221,8 @@ export default function Home() {
           </CardContent>
         </Card>
       </section>
+
+      <BusinessDirectorySearch businesses={businesses} />
     </main>
   );
 }

@@ -1,6 +1,6 @@
 import { createAdminClient, hasSupabaseAdminEnv } from "@/lib/supabase/admin";
 import { OWNER_PRO_EMAIL } from "@/lib/plans";
-import type { SubscriptionPlan } from "@/lib/types";
+import type { BusinessCategory, SubscriptionPlan } from "@/lib/types";
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
@@ -22,11 +22,23 @@ export async function ensureBusinessForUser({
   email,
   fullName,
   businessName,
+  province,
+  city,
+  businessCategory,
+  businessStyle,
+  offerSummary,
+  searchTags,
 }: {
   userId: string;
   email: string;
   fullName: string;
   businessName: string;
+  province: string;
+  city: string;
+  businessCategory: BusinessCategory;
+  businessStyle: string;
+  offerSummary: string;
+  searchTags: string[];
 }) {
   if (!hasSupabaseAdminEnv()) {
     return null;
@@ -52,7 +64,15 @@ export async function ensureBusinessForUser({
   if (existingMembership?.business_id) {
     await admin
       .from("businesses")
-      .update({ plan })
+      .update({
+        plan,
+        province: province.trim() || "San Jose",
+        city: city.trim() || "San Jose",
+        business_category: businessCategory,
+        business_style: businessStyle.trim() || "Negocio local",
+        offer_summary: offerSummary.trim() || "Productos y servicios locales.",
+        search_tags: searchTags,
+      })
       .eq("id", existingMembership.business_id);
 
     return existingMembership.business_id as string;
@@ -60,6 +80,10 @@ export async function ensureBusinessForUser({
 
   const trimmedBusinessName = businessName.trim() || "Mi tienda";
   const businessSlug = slugifyBusinessName(trimmedBusinessName, userId);
+  const trimmedProvince = province.trim() || "San Jose";
+  const trimmedCity = city.trim() || "San Jose";
+  const trimmedStyle = businessStyle.trim() || "Negocio local";
+  const trimmedOffer = offerSummary.trim() || "Productos y servicios locales.";
 
   const { data: business, error: businessError } = await admin
     .from("businesses")
@@ -68,6 +92,12 @@ export async function ensureBusinessForUser({
       slug: businessSlug,
       email: normalizedEmail,
       plan,
+      province: trimmedProvince,
+      city: trimmedCity,
+      business_category: businessCategory,
+      business_style: trimmedStyle,
+      offer_summary: trimmedOffer,
+      search_tags: searchTags,
     })
     .select("id")
     .single();
@@ -93,7 +123,7 @@ export async function ensureBusinessForUser({
     business_id: businessId,
     slug: businessSlug,
     name: trimmedBusinessName,
-    description: "Tienda creada en RightHand.",
+    description: trimmedOffer,
     primary_color: "#103A5C",
     success_color: "#219E6B",
     delivery_color: "#F97316",

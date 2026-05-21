@@ -19,6 +19,7 @@ Slogan: **La mano derecha de tu tienda.**
 - `/login`
 - `/register`
 - `/dashboard`
+- `/dashboard/profile`
 - `/dashboard/store`
 - `/dashboard/products`
 - `/dashboard/orders`
@@ -135,6 +136,15 @@ supabase/migrations/0003_subscription_entitlements.sql
 Esta migracion deja todos los negocios nuevos en plan Gratis, conserva
 `ronnywoods77@gmail.com` como Pro y sincroniza el plan del negocio cuando PayPal
 activa, cancela o suspende una suscripcion.
+
+Migracion de buscador:
+
+```bash
+supabase/migrations/0004_business_discovery_profile.sql
+```
+
+Esta migracion agrega provincia, ciudad, tipo de negocio, estilo, resumen de
+oferta, palabras clave e indice de busqueda a `businesses`.
 
 ## AI Delivery Manager
 

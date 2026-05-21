@@ -11,13 +11,20 @@ export type OrderStatus =
 
 export type SubscriptionPlan = "free" | "pyme" | "pro" | "enterprise";
 
+export type BusinessCategory = "restaurante" | "tienda" | "pyme" | "farmacia";
+
 export type Business = {
   id: string;
   name: string;
   slug: string;
-  type: "restaurante" | "ropa" | "farmacia";
+  type: BusinessCategory;
   description: string;
   plan: SubscriptionPlan;
+  province: string;
+  city: string;
+  businessStyle: string;
+  offerSummary: string;
+  searchTags: string[];
 };
 
 export type Store = {

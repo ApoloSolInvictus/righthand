@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { businessCategories, costaRicaProvinces } from "@/lib/business-profile";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
 
 export default function RegisterPage() {
@@ -38,6 +40,68 @@ export default function RegisterPage() {
             <div className="grid gap-2">
               <Label htmlFor="businessName">Nombre del negocio</Label>
               <Input id="businessName" name="businessName" required placeholder="Mi tienda" />
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-2">
+                <Label htmlFor="province">Provincia</Label>
+                <select
+                  id="province"
+                  name="province"
+                  required
+                  className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  {costaRicaProvinces.map((province) => (
+                    <option key={province} value={province}>
+                      {province}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="city">Ciudad</Label>
+                <Input id="city" name="city" required placeholder="San Pedro" />
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="businessCategory">Tipo de negocio</Label>
+              <select
+                id="businessCategory"
+                name="businessCategory"
+                required
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                {businessCategories.map((category) => (
+                  <option key={category.value} value={category.value}>
+                    {category.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="businessStyle">Estilo o especialidad</Label>
+              <Input
+                id="businessStyle"
+                name="businessStyle"
+                required
+                placeholder="Comida italiana, ropa deportiva, servicios contables"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="offerSummary">Que ofrece</Label>
+              <Textarea
+                id="offerSummary"
+                name="offerSummary"
+                required
+                placeholder="Describe productos, servicios o especialidades principales."
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="searchTags">Palabras clave</Label>
+              <Input
+                id="searchTags"
+                name="searchTags"
+                placeholder="casados, express, ropa casual, regalos"
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
