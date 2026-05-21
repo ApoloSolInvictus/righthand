@@ -54,6 +54,36 @@
   }
 }
 
+.goog-te-gadget {
+  color: hsl(var(--muted-foreground)) !important;
+  font-family: inherit !important;
+  font-size: 0.875rem !important;
+}
+
+.goog-te-gadget select {
+  min-height: 2.5rem;
+  width: 100%;
+  border-radius: 0.375rem;
+  border: 1px solid hsl(var(--input));
+  background: hsl(var(--background));
+  padding: 0 0.75rem;
+  color: hsl(var(--foreground));
+  font: inherit;
+}
+
+.goog-logo-link,
+.goog-te-gadget span {
+  display: none !important;
+}
+
+body > .skiptranslate {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+
 @media print {
   @page {
     margin: 12mm;

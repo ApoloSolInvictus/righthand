@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 
 import { StoreConciergeChat } from "@/components/ai/store-concierge-chat";
+import { SiteTranslator } from "@/components/i18n/site-translator";
 
 import "./globals.css";
 
@@ -33,6 +34,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <SiteTranslator />
         <StoreConciergeChat />
       </body>
     </html>

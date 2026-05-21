@@ -11,6 +11,7 @@ Slogan: **La mano derecha de tu tienda.**
 - **Datos:** Supabase Auth, Postgres, Storage y RLS. El MVP corre localmente con datos demo en `src/lib/mock-data.ts`.
 - **AI Manager:** `POST /api/ai/delivery-manager` usa OpenAI Responses API con salida estructurada; si no hay `OPENAI_API_KEY` o hay timeout, responde con heuristica local.
 - **AI Concierge:** `POST /api/ai/store-concierge` alimenta el chat global multilingue con negocios, tiendas, productos, horarios y zonas de entrega.
+- **Traduccion global:** boton flotante de mundo con Google Translate para que visitantes extranjeros puedan leer tiendas, productos y checkout.
 - **Pagos:** botones oficiales PayPal Live para suscripciones PYME/Pro y webhook para eventos.
 - **Waze:** `generateWazeLink({ lat, lng, address })` usa lat/lng cuando existen y fallback por direccion para entregas y visitas a tienda.
 
