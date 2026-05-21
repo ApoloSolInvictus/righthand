@@ -5,8 +5,10 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { OffersCarousel } from "@/components/storefront/offers-carousel";
 import { businessCategoryLabels } from "@/lib/business-profile";
 import {
+  businessOffers,
   getBusinessBySlug,
   getStoreBySlug,
   products,
@@ -118,6 +120,16 @@ export default async function StorefrontPage({
           </div>
         </div>
       </section>
+
+      <OffersCarousel
+        initialOffers={businessOffers.filter(
+          (offer) => offer.businessId === store.businessId,
+        )}
+        businesses={[business]}
+        businessId={store.businessId}
+        title={`Ofertas de ${store.name}`}
+        subtitle="Promociones del negocio disponibles para visitantes y clientes frecuentes."
+      />
 
       <section className="container py-10">
         <div className="mb-6 flex flex-wrap gap-2">

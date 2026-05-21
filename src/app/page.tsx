@@ -13,7 +13,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BusinessDirectorySearch } from "@/components/storefront/business-directory-search";
-import { businesses } from "@/lib/mock-data";
+import { OffersCarousel } from "@/components/storefront/offers-carousel";
+import { businesses, businessOffers } from "@/lib/mock-data";
 
 const features = [
   {
@@ -183,6 +184,13 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <OffersCarousel
+        initialOffers={businessOffers}
+        businesses={businesses}
+        title="Ofertas destacadas"
+        subtitle="Promociones activas de negocios afiliados para que los clientes encuentren algo bueno desde la primera visita."
+      />
 
       <section className="container grid gap-6 py-16 lg:grid-cols-3">
         <Card className="lg:col-span-2">

@@ -12,6 +12,7 @@ Slogan: **La mano derecha de tu tienda.**
 - **AI Manager:** `POST /api/ai/delivery-manager` usa OpenAI Responses API con salida estructurada; si no hay `OPENAI_API_KEY` o hay timeout, responde con heuristica local.
 - **AI Concierge:** `POST /api/ai/store-concierge` alimenta el chat global multilingue con negocios, tiendas, productos, horarios y zonas de entrega.
 - **Traduccion global:** boton flotante de mundo con Google Translate para que visitantes extranjeros puedan leer tiendas, productos y checkout.
+- **Ofertas:** promociones con texto e imagen para landing, tienda publica y chat IA, disponibles en todos los planes.
 - **Pagos:** botones oficiales PayPal Live para suscripciones PYME/Pro y webhook para eventos.
 - **Waze:** `generateWazeLink({ lat, lng, address })` usa lat/lng cuando existen y fallback por direccion para entregas y visitas a tienda.
 
@@ -23,6 +24,7 @@ Slogan: **La mano derecha de tu tienda.**
 - `/dashboard`
 - `/dashboard/profile`
 - `/dashboard/store`
+- `/dashboard/offers`
 - `/dashboard/products`
 - `/dashboard/orders`
 - `/dashboard/customers`
@@ -66,6 +68,7 @@ Las pantallas de dashboard usan `localStorage` para que los botones funcionen si
 
 - Guardar identidad de tienda, logo y portada.
 - Crear productos y ajustar stock.
+- Publicar ofertas con texto e imagen para landing y tienda.
 - Crear pedidos desde checkout y verlos en seguimiento/dashboard local.
 - Avanzar o cancelar pedidos.
 - Agregar notas CRM.
@@ -107,6 +110,7 @@ El esquema crea:
 - `customers`
 - `orders`
 - `order_items`
+- `business_offers`
 - `invoices`
 - `delivery_zones`
 - `couriers`
@@ -158,6 +162,16 @@ supabase/migrations/0005_store_waze_locations.sql
 
 Esta migracion agrega direccion fisica, latitud y longitud a `stores` para
 mostrar el boton "Abrir en Waze" en cada tienda publica.
+
+Migracion de ofertas:
+
+```bash
+supabase/migrations/0006_business_offers.sql
+```
+
+Esta migracion crea `business_offers` con RLS por `business_id`. Las ofertas
+activas de tiendas publicadas son visibles en landing, perfil publico y AI
+Concierge; owner/admin/sales pueden administrarlas.
 
 ## AI Delivery Manager
 

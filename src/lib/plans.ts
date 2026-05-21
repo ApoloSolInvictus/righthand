@@ -6,6 +6,7 @@ export type DashboardFeature =
   | "dashboard"
   | "businessProfile"
   | "store"
+  | "offers"
   | "products"
   | "orders"
   | "customers"
@@ -80,6 +81,11 @@ export const featureRules: Record<
     minimumPlan: "free",
     description: "Constructor basico de tienda publica.",
   },
+  offers: {
+    label: "Ofertas",
+    minimumPlan: "free",
+    description: "Promociones con texto e imagen para landing y tienda publica.",
+  },
   products: {
     label: "Productos",
     minimumPlan: "free",
@@ -97,7 +103,7 @@ export const featureRules: Record<
   },
   accounting: {
     label: "Contabilidad",
-    minimumPlan: "pyme",
+    minimumPlan: "free",
     description: "Facturacion, CSV, impresion/PDF y auxiliar IVA Costa Rica.",
   },
   deliveries: {

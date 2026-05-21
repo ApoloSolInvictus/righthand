@@ -72,6 +72,15 @@ export type Product = {
   active: boolean;
 };
 
+export type BusinessOffer = {
+  id: string;
+  businessId: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  active: boolean;
+};
+
 export type Customer = {
   id: string;
   businessId: string;

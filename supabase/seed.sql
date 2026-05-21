@@ -122,6 +122,39 @@ values
   )
 on conflict (id) do nothing;
 
+insert into public.business_offers (
+  id, business_id, title, description, image_url, active, sort_order
+)
+values
+  (
+    '12121212-1111-4111-8111-111111111111',
+    '11111111-1111-4111-8111-111111111111',
+    'Combo almuerzo ejecutivo',
+    'Casado con pollo, fresco natural y entrega en San Pedro con precio especial de mediodia.',
+    'https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1000&q=80',
+    true,
+    1
+  ),
+  (
+    '12121212-2222-4222-8222-222222222222',
+    '22222222-2222-4222-8222-222222222222',
+    'Outfit casual completo',
+    'Blusa lino terracota mas basico seleccionado con asesoria por WhatsApp antes del envio.',
+    'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1000&q=80',
+    true,
+    1
+  ),
+  (
+    '12121212-3333-4333-8333-333333333333',
+    '33333333-3333-4333-8333-333333333333',
+    'Kit bienestar mensual',
+    'Vitaminas, cuidado personal y recordatorio de recompra para clientes frecuentes.',
+    'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=1000&q=80',
+    true,
+    1
+  )
+on conflict (id) do nothing;
+
 insert into public.delivery_zones (id, business_id, name, fee, eta_minutes)
 values
   ('bbbbbbbb-1111-4111-8111-111111111111', '11111111-1111-4111-8111-111111111111', 'San Pedro', 1200, 25),

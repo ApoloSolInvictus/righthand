@@ -329,7 +329,7 @@ export function SiteTranslator() {
       </Button>
 
       {open ? (
-        <div className="absolute bottom-16 left-0 w-[min(92vw,380px)] overflow-hidden rounded-lg border bg-background shadow-2xl">
+        <div className="fixed bottom-20 left-3 right-3 max-h-[calc(100dvh-6rem)] w-auto overflow-hidden rounded-lg border bg-background shadow-2xl sm:absolute sm:bottom-16 sm:left-0 sm:right-auto sm:max-h-[min(78vh,680px)] sm:w-[min(92vw,380px)]">
           <div className="flex items-center justify-between gap-3 border-b bg-primary p-4 text-primary-foreground">
             <div className="flex min-w-0 items-center gap-3">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/15">
@@ -354,7 +354,7 @@ export function SiteTranslator() {
             </Button>
           </div>
 
-          <div className="grid gap-4 p-4">
+          <div className="grid max-h-[calc(100dvh-11rem)] gap-4 overflow-y-auto p-4 sm:max-h-[calc(min(78vh,680px)-73px)]">
             <div className="grid grid-cols-2 gap-2">
               {quickLanguages.map((language) => (
                 <Button
@@ -363,14 +363,14 @@ export function SiteTranslator() {
                   variant={currentLanguage === language.code ? "delivery" : "outline"}
                   size="sm"
                   onClick={() => selectLanguage(language.code)}
-                  className="justify-start"
+                  className="justify-start overflow-hidden"
                 >
                   {currentLanguage === language.code ? (
                     <Check className="h-4 w-4" aria-hidden="true" />
                   ) : (
                     <Globe2 className="h-4 w-4" aria-hidden="true" />
                   )}
-                  {language.label}
+                  <span className="truncate">{language.label}</span>
                 </Button>
               ))}
             </div>
@@ -396,7 +396,7 @@ export function SiteTranslator() {
                   className="pl-9"
                 />
               </div>
-              <div className="mt-3 grid max-h-64 gap-2 overflow-y-auto pr-1">
+              <div className="mt-3 grid max-h-[34dvh] gap-2 overflow-y-auto pr-1 sm:max-h-64">
                 {filteredLanguages.map((language) => (
                   <Button
                     key={language.code}
@@ -404,7 +404,7 @@ export function SiteTranslator() {
                     variant={currentLanguage === language.code ? "delivery" : "outline"}
                     size="sm"
                     onClick={() => selectLanguage(language.code)}
-                    className="justify-start"
+                    className="justify-start overflow-hidden"
                   >
                     {currentLanguage === language.code ? (
                       <Check className="h-4 w-4" aria-hidden="true" />

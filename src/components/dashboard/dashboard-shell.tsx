@@ -5,7 +5,9 @@ import {
   CreditCard,
   FileSearch,
   LayoutDashboard,
+  LogOut,
   MapPinned,
+  Megaphone,
   PackageCheck,
   Send,
   ShoppingBag,
@@ -15,6 +17,7 @@ import {
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { logout } from "@/app/dashboard/actions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { canUseFeature, planDetails, type DashboardFeature } from "@/lib/plans";
@@ -34,6 +37,7 @@ const navItems: Array<{
     feature: "businessProfile",
   },
   { href: "/dashboard/store", label: "Tienda", icon: Store, feature: "store" },
+  { href: "/dashboard/offers", label: "Ofertas", icon: Megaphone, feature: "offers" },
   { href: "/dashboard/products", label: "Productos", icon: ShoppingBag, feature: "products" },
   { href: "/dashboard/orders", label: "Pedidos", icon: PackageCheck, feature: "orders" },
   { href: "/dashboard/customers", label: "Clientes", icon: Users, feature: "customers" },
@@ -68,13 +72,19 @@ export function DashboardShell({
             </span>
             RightHand
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
             <Button asChild variant="outline" size="sm">
               <Link href="/tienda/soda-luna">Ver tienda</Link>
             </Button>
             <Button asChild size="sm">
               <Link href="/courier/orders">Mensajero</Link>
             </Button>
+            <form action={logout}>
+              <Button type="submit" variant="outline" size="sm">
+                <LogOut className="h-4 w-4" aria-hidden="true" />
+                Logout
+              </Button>
+            </form>
           </div>
         </div>
       </div>

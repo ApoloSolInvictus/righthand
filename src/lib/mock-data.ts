@@ -1,5 +1,6 @@
 import type {
   Business,
+  BusinessOffer,
   Courier,
   Customer,
   Delivery,
@@ -145,6 +146,39 @@ export const stores: Store[] = [
     deliveryZones: deliveryZones.filter(
       (zone) => zone.businessId === "b_farma_central",
     ),
+  },
+];
+
+export const businessOffers: BusinessOffer[] = [
+  {
+    id: "of_soda_luna_combo",
+    businessId: "b_soda_luna",
+    title: "Combo almuerzo ejecutivo",
+    description:
+      "Casado con pollo, fresco natural y entrega en San Pedro con precio especial de mediodia.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1000&q=80",
+    active: true,
+  },
+  {
+    id: "of_moda_tica_outfit",
+    businessId: "b_moda_tica",
+    title: "Outfit casual completo",
+    description:
+      "Blusa lino terracota mas basico seleccionado con asesoria por WhatsApp antes del envio.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1000&q=80",
+    active: true,
+  },
+  {
+    id: "of_farma_central_vitaminas",
+    businessId: "b_farma_central",
+    title: "Kit bienestar mensual",
+    description:
+      "Vitaminas, cuidado personal y recordatorio de recompra para clientes frecuentes.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=1000&q=80",
+    active: true,
   },
 ];
 
@@ -515,6 +549,7 @@ export function getBusinessDataset(businessId = getPrimaryBusiness().id) {
     couriers: couriers.filter((courier) => courier.businessId === businessId),
     deliveries: deliveries.filter((delivery) => delivery.businessId === businessId),
     zones: deliveryZones.filter((zone) => zone.businessId === businessId),
+    offers: businessOffers.filter((offer) => offer.businessId === businessId),
   };
 }
 

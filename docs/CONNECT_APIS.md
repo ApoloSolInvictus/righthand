@@ -51,12 +51,13 @@ Docs utiles:
 5. Ejecuta `supabase/migrations/0003_subscription_entitlements.sql`.
 6. Ejecuta `supabase/migrations/0004_business_discovery_profile.sql`.
 7. Ejecuta `supabase/migrations/0005_store_waze_locations.sql`.
-8. Ejecuta `supabase/seed.sql` si quieres los datos demo en la base.
-9. Ve a Project Settings / API Keys.
-10. Copia Project URL.
-11. Copia Publishable key o anon key.
-12. Copia una Secret key o la legacy Service role key solo para servidor.
-13. Agrega en Vercel:
+8. Ejecuta `supabase/migrations/0006_business_offers.sql`.
+9. Ejecuta `supabase/seed.sql` si quieres los datos demo en la base.
+10. Ve a Project Settings / API Keys.
+11. Copia Project URL.
+12. Copia Publishable key o anon key.
+13. Copia una Secret key o la legacy Service role key solo para servidor.
+14. Agrega en Vercel:
 
 Nota: si al ejecutar `0002_accounting_invoices.sql` aparece
 `relation "public.businesses" does not exist`, falta el paso 3. Ejecuta primero
@@ -90,6 +91,7 @@ Importante:
 - `invoices` guarda facturas y auxiliar IVA por `business_id`, visible para owner/admin/sales.
 - `businesses` guarda provincia, ciudad, tipo, estilo, oferta, tags e indice de busqueda para el directorio publico.
 - `stores` guarda direccion fisica, latitud y longitud para el boton Waze publico.
+- `business_offers` guarda promociones con texto e imagen para landing, tienda publica y AI Concierge.
 - Buckets creados: `store-assets` y `delivery-proofs`.
 
 Docs utiles:

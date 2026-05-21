@@ -81,6 +81,12 @@ type ZoneRow = {
   eta_minutes: number;
 };
 
+type OfferRow = {
+  business_id: string;
+  title: string;
+  description: string | null;
+};
+
 function getBusinessRef(store: StoreRow) {
   return Array.isArray(store.businesses) ? store.businesses[0] : store.businesses;
 }
@@ -143,8 +149,11 @@ async function getSupabaseStoreConciergeContext(): Promise<StoreConciergeContext
   );
   const businessIds = stores.map((store) => store.business_id);
 
-  const [{ data: productRows, error: productsError }, { data: zoneRows, error: zonesError }] =
-    await Promise.all([
+  const [
+    { data: productRows, error: productsError },
+    { data: zoneRows, error: zonesError },
+    { data: offerRows, error: offersError },
+  ] = await Promise.all([
       admin
         .from("products")
         .select("business_id, name, description, price, stock")
@@ -157,6 +166,12 @@ async function getSupabaseStoreConciergeContext(): Promise<StoreConciergeContext
         .in("business_id", businessIds)
         .eq("active", true)
         .limit(300),
+      admin
+        .from("business_offers")
+        .select("business_id, title, description")
+        .in("business_id", businessIds)
+        .eq("active", true)
+        .limit(300),
     ]);
 
   if (productsError) {
@@ -165,6 +180,10 @@ async function getSupabaseStoreConciergeContext(): Promise<StoreConciergeContext
 
   if (zonesError) {
     console.error("Store concierge Supabase zones query failed", zonesError);
+  }
+
+  if (offersError) {
+    console.error("Store concierge Supabase offers query failed", offersError);
   }
 
   const productsByBusiness = new Map<string, ProductRow[]>();
@@ -180,6 +199,14 @@ async function getSupabaseStoreConciergeContext(): Promise<StoreConciergeContext
     zonesByBusiness.set(zone.business_id, [
       ...(zonesByBusiness.get(zone.business_id) || []),
       zone,
+    ]);
+  });
+
+  const offersByBusiness = new Map<string, OfferRow[]>();
+  (offerRows as OfferRow[] | null | undefined)?.forEach((offer) => {
+    offersByBusiness.set(offer.business_id, [
+      ...(offersByBusiness.get(offer.business_id) || []),
+      offer,
     ]);
   });
 
@@ -216,6 +243,10 @@ async function getSupabaseStoreConciergeContext(): Promise<StoreConciergeContext
           description: product.description || "",
           price: Number(product.price),
           stock: product.stock,
+        })),
+        offers: (offersByBusiness.get(store.business_id) || []).map((offer) => ({
+          title: offer.title,
+          description: offer.description || "",
         })),
         deliveryZones: (zonesByBusiness.get(store.business_id) || []).map((zone) => ({
           name: zone.name,
@@ -259,7 +290,7 @@ export async function POST(request: Request) {
       client.responses.parse({
         model: process.env.OPENAI_MODEL || "gpt-5.4-mini",
         instructions:
-          "Eres RightHand Concierge, el vendedor estrella de una red de PYMES de Costa Rica. Responde siempre en el idioma del visitante. Recomienda negocios, productos, horarios, ubicaciones, enlaces Waze y zonas de entrega usando solo el contexto recibido. Incluye negocios gratis y pagados por igual; no favorezcas ningun plan. Si no hay una coincidencia exacta, sugiere alternativas cercanas y pide un dato para afinar. No inventes horarios, precios ni productos.",
+          "Eres RightHand Concierge, el vendedor estrella de una red de PYMES de Costa Rica. Responde siempre en el idioma del visitante. Recomienda negocios, productos, ofertas, horarios, ubicaciones, enlaces Waze y zonas de entrega usando solo el contexto recibido. Incluye negocios gratis y pagados por igual; no favorezcas ningun plan. Si no hay una coincidencia exacta, sugiere alternativas cercanas y pide un dato para afinar. No inventes horarios, precios ni productos.",
         input: JSON.stringify({
           site:
             "RightHand: La mano derecha de tu tienda. SaaS y directorio publico de negocios afiliados en Costa Rica.",

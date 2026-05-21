@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import {
   businesses,
+  businessOffers,
   deliveryZones,
   products,
   stores,
@@ -68,6 +69,10 @@ export type StoreConciergeBusiness = {
     description: string;
     price: number;
     stock: number;
+  }>;
+  offers: Array<{
+    title: string;
+    description: string;
   }>;
   deliveryZones: Array<{
     name: string;
@@ -140,6 +145,12 @@ export function getMockStoreConciergeContext(): StoreConciergeContext {
           address: store?.physicalAddress || `${business.city}, ${business.province}`,
         }),
         products: businessProducts,
+        offers: businessOffers
+          .filter((offer) => offer.businessId === business.id && offer.active)
+          .map((offer) => ({
+            title: offer.title,
+            description: offer.description,
+          })),
         deliveryZones: deliveryZones
           .filter((zone) => zone.businessId === business.id)
           .map((zone) => ({
@@ -245,6 +256,8 @@ export function heuristicStoreConcierge(
           business.city,
           business.businessStyle,
           business.offerSummary,
+          business.offers.map((offer) => offer.title).join(" "),
+          business.offers.map((offer) => offer.description).join(" "),
           business.physicalAddress,
           business.searchTags.join(" "),
           business.products.map((product) => product.name).join(" "),
@@ -278,7 +291,11 @@ export function heuristicStoreConcierge(
     businessName: business.name,
     storeSlug: business.slug,
     storeUrl: business.storeUrl,
-    reason: `${business.businessStyle}: ${business.offerSummary}`,
+    reason: `${business.businessStyle}: ${
+      business.offers[0]
+        ? `${business.offerSummary} Oferta: ${business.offers[0].title}.`
+        : business.offerSummary
+    }`,
     location: `${business.city}, ${business.province}`,
     hours: business.hours,
     physicalAddress: business.physicalAddress,

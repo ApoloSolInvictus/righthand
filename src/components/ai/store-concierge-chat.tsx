@@ -169,7 +169,7 @@ export function StoreConciergeChat() {
       </Button>
 
       {open ? (
-        <Card className="fixed bottom-4 left-4 right-4 z-50 flex max-h-[calc(100vh-2rem)] flex-col overflow-hidden shadow-2xl sm:left-auto sm:w-[430px]">
+        <Card className="fixed inset-x-3 bottom-3 top-3 z-50 flex max-h-[calc(100dvh-1.5rem)] flex-col overflow-hidden shadow-2xl sm:inset-auto sm:bottom-4 sm:right-4 sm:h-[min(720px,calc(100dvh-2rem))] sm:w-[430px]">
           <CardHeader className="border-b bg-primary p-4 text-primary-foreground">
             <div className="flex items-center justify-between gap-3">
               <div className="flex min-w-0 items-center gap-3">
@@ -237,14 +237,18 @@ export function StoreConciergeChat() {
                           </div>
 
                           <div className="mt-3 grid gap-2 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-2">
+                            <span className="flex min-w-0 items-center gap-2">
                               <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
-                              {recommendation.physicalAddress ||
-                                recommendation.location}
+                              <span className="min-w-0 break-words">
+                                {recommendation.physicalAddress ||
+                                  recommendation.location}
+                              </span>
                             </span>
-                            <span className="flex items-center gap-2">
+                            <span className="flex min-w-0 items-center gap-2">
                               <Clock className="h-3.5 w-3.5" aria-hidden="true" />
-                              {recommendation.hours}
+                              <span className="min-w-0 break-words">
+                                {recommendation.hours}
+                              </span>
                             </span>
                           </div>
 
@@ -322,7 +326,9 @@ export function StoreConciergeChat() {
             <form onSubmit={handleSubmit} className="border-t bg-background p-3">
               <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
                 <Languages className="h-3.5 w-3.5" aria-hidden="true" />
-                Ask in English, Espanol, Francais, Deutsch, Portugues or any language.
+                <span className="min-w-0 break-words">
+                  Ask in English, Espanol, Francais, Deutsch, Portugues or any language.
+                </span>
               </div>
               <div className="flex gap-2">
                 <Input
