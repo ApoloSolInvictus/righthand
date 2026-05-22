@@ -5,6 +5,7 @@ import type {
   Customer,
   Delivery,
   DeliveryZone,
+  MarketingCampaign,
   Order,
   Product,
   ProductCategory,
@@ -179,6 +180,27 @@ export const businessOffers: BusinessOffer[] = [
     imageUrl:
       "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=1000&q=80",
     active: true,
+  },
+];
+
+export const marketingCampaigns: MarketingCampaign[] = [
+  {
+    id: "mk_soda_luna_almuerzo",
+    businessId: "b_soda_luna",
+    title: "Almuerzo ejecutivo express",
+    campaignGoal: "Vender mas combos de mediodia",
+    audience: "Personas que trabajan cerca de San Pedro",
+    offerText: "Combo casado con fresco natural y entrega rapida.",
+    instructions: "Estilo moderno, apetitoso, confiable y claro para redes sociales.",
+    formatId: "instagram_post",
+    imageUrl:
+      "https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1000&q=80",
+    referenceImages: [],
+    captions: [
+      "Almuerzo listo sin perder tiempo: pedi tu combo ejecutivo de Soda Luna.",
+    ],
+    hashtags: ["#RightHandCR", "#SodaLuna", "#AlmuerzoExpress"],
+    createdAt: new Date().toISOString(),
   },
 ];
 
@@ -550,6 +572,9 @@ export function getBusinessDataset(businessId = getPrimaryBusiness().id) {
     deliveries: deliveries.filter((delivery) => delivery.businessId === businessId),
     zones: deliveryZones.filter((zone) => zone.businessId === businessId),
     offers: businessOffers.filter((offer) => offer.businessId === businessId),
+    marketingCampaigns: marketingCampaigns.filter(
+      (campaign) => campaign.businessId === businessId,
+    ),
   };
 }
 

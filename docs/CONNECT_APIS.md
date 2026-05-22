@@ -46,22 +46,23 @@ Docs utiles:
 
 1. Crea un proyecto nuevo en Supabase, dedicado solo a RightHand.
 2. Ve a SQL Editor.
-3. Ejecuta `supabase/migrations/0001_righthand_init.sql`.
+3. Ejecuta `supabase/migrations/0001_righthand_schema_fixed.sql`.
 4. Ejecuta `supabase/migrations/0002_accounting_invoices.sql`.
 5. Ejecuta `supabase/migrations/0003_subscription_entitlements.sql`.
 6. Ejecuta `supabase/migrations/0004_business_discovery_profile.sql`.
 7. Ejecuta `supabase/migrations/0005_store_waze_locations.sql`.
 8. Ejecuta `supabase/migrations/0006_business_offers.sql`.
-9. Ejecuta `supabase/seed.sql` si quieres los datos demo en la base.
-10. Ve a Project Settings / API Keys.
-11. Copia Project URL.
-12. Copia Publishable key o anon key.
-13. Copia una Secret key o la legacy Service role key solo para servidor.
-14. Agrega en Vercel:
+9. Ejecuta `supabase/migrations/0007_marketing_campaigns.sql`.
+10. Ejecuta `supabase/seed.sql` si quieres los datos demo en la base.
+11. Ve a Project Settings / API Keys.
+12. Copia Project URL.
+13. Copia Publishable key o anon key.
+14. Copia una Secret key o la legacy Service role key solo para servidor.
+15. Agrega en Vercel:
 
 Nota: si al ejecutar `0002_accounting_invoices.sql` aparece
 `relation "public.businesses" does not exist`, falta el paso 3. Ejecuta primero
-`0001_righthand_init.sql` y luego vuelve a correr `0002`.
+`0001_righthand_schema_fixed.sql` y luego vuelve a correr `0002`.
 
 Nota: si una copia vieja de `0004_business_discovery_profile.sql` muestra
 `generation expression is not immutable`, usa la version actual del repo. El
@@ -92,7 +93,8 @@ Importante:
 - `businesses` guarda provincia, ciudad, tipo, estilo, oferta, tags e indice de busqueda para el directorio publico.
 - `stores` guarda direccion fisica, latitud y longitud para el boton Waze publico.
 - `business_offers` guarda promociones con texto e imagen para landing, tienda publica y AI Concierge.
-- Buckets creados: `store-assets` y `delivery-proofs`.
+- `marketing_campaigns` guarda anuncios, referencias, copy y enlaces Canva por negocio.
+- Buckets creados: `store-assets`, `delivery-proofs` y `marketing-assets`.
 
 Docs utiles:
 
@@ -109,28 +111,68 @@ Docs utiles:
 ```env
 OPENAI_API_KEY=sk-...
 OPENAI_MODEL=gpt-5.4-mini
+OPENAI_IMAGE_MODEL=gpt-image-2
 OPENAI_TIMEOUT_MS=15000
+OPENAI_IMAGE_TIMEOUT_MS=120000
 ```
 
 `OPENAI_TIMEOUT_MS` no se copia de OpenAI. Es un valor propio de RightHand:
 usa `15000` para esperar hasta 15 segundos antes de activar la respuesta
 heuristica local.
 
+`OPENAI_IMAGE_TIMEOUT_MS` tampoco se copia de OpenAI; usa `120000` porque las
+imagenes complejas pueden tardar mas que una respuesta de texto.
+
 Endpoints que usan esta key:
 
 ```http
 POST /api/ai/delivery-manager
 POST /api/ai/store-concierge
+POST /api/ai/marketing-image
 ```
 
-Si no hay key, o si OpenAI no responde antes del timeout, los endpoints responden con heuristica local. El AI Store Concierge usa Supabase cuando `SUPABASE_SERVICE_ROLE_KEY` esta configurada y recomienda tiendas publicadas sin filtrar por plan.
+Si no hay key, o si OpenAI no responde antes del timeout, los endpoints responden con heuristica local. El AI Store Concierge usa Supabase cuando `SUPABASE_SERVICE_ROLE_KEY` esta configurada y recomienda tiendas publicadas sin filtrar por plan. Marketing Digital usa `gpt-image-2` por defecto y crea un mockup local cuando no hay key.
 
 Docs utiles:
 
 - Project API keys: https://platform.openai.com/docs/api-reference/project-api-keys
 - Responses/text generation: https://platform.openai.com/docs/guides/text
+- Image generation: https://developers.openai.com/api/docs/guides/image-generation
 
-## 4. PayPal Subscriptions
+## 4. Canva Connect
+
+RightHand crea disenos Canva desde `/dashboard/marketing` con:
+
+```http
+POST /api/canva/create-design
+```
+
+Para activar Canva Connect:
+
+1. Entra a Canva Developers.
+2. Crea una integracion Connect.
+3. Configura OAuth para obtener un access token por usuario/negocio.
+4. Asegura scopes:
+   - `asset:write`
+   - `asset:read`
+   - `design:content:write`
+5. Para pruebas privadas, pega un access token temporal en Vercel:
+
+```env
+CANVA_ACCESS_TOKEN=...
+```
+
+Importante: el token actua en nombre de un usuario de Canva. Para produccion,
+reemplaza el token manual por OAuth y guarda tokens por tenant. RightHand ya
+deja el TODO marcado en `.env.example`.
+
+Docs utiles:
+
+- Canva Connect APIs: https://www.canva.dev/docs/connect/
+- Create design: https://www.canva.dev/docs/connect/api-reference/designs/create-design/
+- Asset upload: https://www.canva.dev/docs/connect/api-reference/assets/create-asset-upload-job/
+
+## 5. PayPal Subscriptions
 
 RightHand usa los botones oficiales de PayPal en `/dashboard/billing`. El SDK se carga una sola vez y renderiza:
 
@@ -181,7 +223,7 @@ Docs utiles:
 - Subscriptions webhooks: https://developer.paypal.com/docs/subscriptions/reference/webhooks/
 - Verify webhook signature: https://developer.paypal.com/docs/api/webhooks/v1/#verify-webhook-signature_post
 
-## 5. WhatsApp Business opcional
+## 6. WhatsApp Business opcional
 
 RightHand lo deja como soporte transaccional. Conectalo solo para estados de pedidos.
 
@@ -200,7 +242,7 @@ Flujos recomendados:
 - Pedido entregado.
 - Pedido atrasado.
 
-## 6. Checklist final de produccion
+## 7. Checklist final de produccion
 
 1. Configurar dominio en Vercel.
 2. Cambiar `NEXT_PUBLIC_APP_URL` al dominio final.

@@ -13,6 +13,7 @@ Slogan: **La mano derecha de tu tienda.**
 - **AI Concierge:** `POST /api/ai/store-concierge` alimenta el chat global multilingue con negocios, tiendas, productos, horarios y zonas de entrega.
 - **Traduccion global:** boton flotante de mundo con Google Translate para que visitantes extranjeros puedan leer tiendas, productos y checkout.
 - **Ofertas:** promociones con texto e imagen para landing, tienda publica y chat IA, disponibles en todos los planes.
+- **Marketing Digital:** `/dashboard/marketing` crea anuncios con GPT Image/OpenAI, referencias visuales, copy para redes y Canva Connect.
 - **Pagos:** botones oficiales PayPal Live para suscripciones PYME/Pro y webhook para eventos.
 - **Waze:** `generateWazeLink({ lat, lng, address })` usa lat/lng cuando existen y fallback por direccion para entregas y visitas a tienda.
 
@@ -25,6 +26,7 @@ Slogan: **La mano derecha de tu tienda.**
 - `/dashboard/profile`
 - `/dashboard/store`
 - `/dashboard/offers`
+- `/dashboard/marketing`
 - `/dashboard/products`
 - `/dashboard/orders`
 - `/dashboard/customers`
@@ -40,6 +42,8 @@ Slogan: **La mano derecha de tu tienda.**
 - `/order/[publicTrackingCode]`
 - `/api/health`
 - `/api/ai/store-concierge`
+- `/api/ai/marketing-image`
+- `/api/canva/create-design`
 
 ## Instalacion Local
 
@@ -58,7 +62,7 @@ Para conectar servicios reales:
 cp .env.example .env.local
 ```
 
-Luego completa Supabase, OpenAI y PayPal.
+Luego completa Supabase, OpenAI, Canva y PayPal.
 
 Para publicar y conectar APIs paso a paso, usa [docs/CONNECT_APIS.md](docs/CONNECT_APIS.md).
 
@@ -69,6 +73,7 @@ Las pantallas de dashboard usan `localStorage` para que los botones funcionen si
 - Guardar identidad de tienda, logo y portada.
 - Crear productos y ajustar stock.
 - Publicar ofertas con texto e imagen para landing y tienda.
+- Crear anuncios de marketing con imagenes de referencia, copy, hashtags y Canva.
 - Crear pedidos desde checkout y verlos en seguimiento/dashboard local.
 - Avanzar o cancelar pedidos.
 - Agregar notas CRM.
@@ -90,7 +95,7 @@ NEXT_PUBLIC_RIGHTHAND_SUPABASE_ENABLED=true
 SQL principal:
 
 ```bash
-supabase/migrations/0001_righthand_init.sql
+supabase/migrations/0001_righthand_schema_fixed.sql
 ```
 
 Seed demo:
@@ -111,6 +116,7 @@ El esquema crea:
 - `orders`
 - `order_items`
 - `business_offers`
+- `marketing_campaigns`
 - `invoices`
 - `delivery_zones`
 - `couriers`
@@ -121,7 +127,7 @@ El esquema crea:
 - `subscriptions`
 - `ai_logs`
 
-Tambien crea buckets `store-assets` y `delivery-proofs`, helpers privados para RLS y grants explicitos para Data API. RLS separa datos por tenant, permite que mensajeros vean solo entregas asignadas y mantiene `invoices` visible solo para staff del negocio.
+Tambien crea buckets `store-assets`, `delivery-proofs` y `marketing-assets`, helpers privados para RLS y grants explicitos para Data API. RLS separa datos por tenant, permite que mensajeros vean solo entregas asignadas y mantiene `invoices` visible solo para staff del negocio.
 
 Migracion contable:
 
@@ -131,7 +137,7 @@ supabase/migrations/0002_accounting_invoices.sql
 
 Esta migracion crea `invoices` para facturacion y auxiliar IVA por `business_id`.
 Si Supabase muestra `relation "public.businesses" does not exist`, primero corre
-`0001_righthand_init.sql`; esa migracion crea la tabla base `businesses` y los
+`0001_righthand_schema_fixed.sql`; esa migracion crea la tabla base `businesses` y los
 helpers privados que `0002` necesita para contabilidad y RLS.
 
 Migracion de planes:
@@ -173,6 +179,16 @@ Esta migracion crea `business_offers` con RLS por `business_id`. Las ofertas
 activas de tiendas publicadas son visibles en landing, perfil publico y AI
 Concierge; owner/admin/sales pueden administrarlas.
 
+Migracion de marketing:
+
+```bash
+supabase/migrations/0007_marketing_campaigns.sql
+```
+
+Esta migracion crea `marketing_campaigns` y el bucket `marketing-assets` para
+anuncios, referencias y enlaces Canva por negocio. El acceso queda limitado por
+RLS a owner/admin/sales del tenant.
+
 ## AI Delivery Manager
 
 Endpoint:
@@ -192,6 +208,29 @@ POST /api/ai/store-concierge
 ```
 
 El boton flotante global consulta este endpoint para responder en el idioma del visitante y recomendar negocios afiliados de RightHand sin filtrar por plan. En produccion lee tiendas publicadas desde Supabase con `SUPABASE_SERVICE_ROLE_KEY`; en local o sin llave usa los datos demo.
+
+## Marketing Digital
+
+Endpoint de imagen:
+
+```http
+POST /api/ai/marketing-image
+```
+
+Usa `OPENAI_IMAGE_MODEL` para generar anuncios. Por defecto queda en
+`gpt-image-2`. Si no hay `OPENAI_API_KEY`, crea un mockup SVG local para que el
+flujo siga funcionando.
+
+Endpoint Canva:
+
+```http
+POST /api/canva/create-design
+```
+
+Usa Canva Connect API con `CANVA_ACCESS_TOKEN`. Si el token existe y tiene
+scopes `asset:write`, `asset:read` y `design:content:write`, RightHand sube la
+imagen generada como asset y crea un diseno editable. TODO produccion: cambiar
+el token manual por OAuth por usuario/negocio.
 
 ## PayPal
 

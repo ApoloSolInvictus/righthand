@@ -155,6 +155,37 @@ values
   )
 on conflict (id) do nothing;
 
+insert into public.marketing_campaigns (
+  id,
+  business_id,
+  title,
+  campaign_goal,
+  audience,
+  offer_text,
+  instructions,
+  format_id,
+  image_url,
+  captions,
+  hashtags,
+  source
+)
+values
+  (
+    '13131313-1111-4111-8111-111111111111',
+    '11111111-1111-4111-8111-111111111111',
+    'Almuerzo ejecutivo express',
+    'Vender mas combos de mediodia',
+    'Personas que trabajan cerca de San Pedro',
+    'Combo casado con fresco natural y entrega rapida.',
+    'Estilo moderno, apetitoso, confiable y claro para redes sociales.',
+    'instagram_post',
+    'https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1000&q=80',
+    array['Almuerzo listo sin perder tiempo: pedi tu combo ejecutivo de Soda Luna.'],
+    array['#RightHandCR', '#SodaLuna', '#AlmuerzoExpress'],
+    'seed'
+  )
+on conflict (id) do nothing;
+
 insert into public.delivery_zones (id, business_id, name, fee, eta_minutes)
 values
   ('bbbbbbbb-1111-4111-8111-111111111111', '11111111-1111-4111-8111-111111111111', 'San Pedro', 1200, 25),

@@ -13,6 +13,13 @@ export type SubscriptionPlan = "free" | "pyme" | "pro" | "enterprise";
 
 export type BusinessCategory = "restaurante" | "tienda" | "pyme" | "farmacia";
 
+export type MarketingFormatId =
+  | "instagram_post"
+  | "instagram_story"
+  | "facebook_ad"
+  | "whatsapp_status"
+  | "flyer";
+
 export type Business = {
   id: string;
   name: string;
@@ -79,6 +86,25 @@ export type BusinessOffer = {
   description: string;
   imageUrl: string;
   active: boolean;
+};
+
+export type MarketingCampaign = {
+  id: string;
+  businessId: string;
+  title: string;
+  campaignGoal: string;
+  audience: string;
+  offerText: string;
+  instructions: string;
+  formatId: MarketingFormatId;
+  imageUrl: string;
+  referenceImages: string[];
+  captions: string[];
+  hashtags: string[];
+  canvaDesignId?: string;
+  canvaEditUrl?: string;
+  canvaViewUrl?: string;
+  createdAt: string;
 };
 
 export type Customer = {

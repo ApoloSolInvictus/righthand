@@ -7,6 +7,7 @@ export type DashboardFeature =
   | "businessProfile"
   | "store"
   | "offers"
+  | "marketing"
   | "products"
   | "orders"
   | "customers"
@@ -85,6 +86,11 @@ export const featureRules: Record<
     label: "Ofertas",
     minimumPlan: "free",
     description: "Promociones con texto e imagen para landing y tienda publica.",
+  },
+  marketing: {
+    label: "Marketing Digital",
+    minimumPlan: "free",
+    description: "Anuncios con IA, imagenes de referencia y conexion Canva.",
   },
   products: {
     label: "Productos",
