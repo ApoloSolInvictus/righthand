@@ -13,7 +13,7 @@ Slogan: **La mano derecha de tu tienda.**
 - **AI Concierge:** `POST /api/ai/store-concierge` alimenta el chat global multilingue con negocios, tiendas, productos, horarios y zonas de entrega.
 - **Traduccion global:** boton flotante de mundo con Google Translate para que visitantes extranjeros puedan leer tiendas, productos y checkout.
 - **Ofertas:** promociones con texto e imagen para landing, tienda publica y chat IA, disponibles en todos los planes.
-- **Marketing Digital:** `/dashboard/marketing` crea anuncios con GPT Image/OpenAI, referencias visuales, copy para redes y Canva Connect.
+- **Marketing Digital:** `/dashboard/marketing` crea anuncios con OpenAI Images, referencias visuales y copy para redes.
 - **Pagos:** botones oficiales PayPal Live para suscripciones PYME/Pro y webhook para eventos.
 - **Waze:** `generateWazeLink({ lat, lng, address })` usa lat/lng cuando existen y fallback por direccion para entregas y visitas a tienda.
 
@@ -43,7 +43,6 @@ Slogan: **La mano derecha de tu tienda.**
 - `/api/health`
 - `/api/ai/store-concierge`
 - `/api/ai/marketing-image`
-- `/api/canva/create-design`
 
 ## Instalacion Local
 
@@ -62,7 +61,7 @@ Para conectar servicios reales:
 cp .env.example .env.local
 ```
 
-Luego completa Supabase, OpenAI, Canva y PayPal.
+Luego completa Supabase, OpenAI y PayPal.
 
 Para publicar y conectar APIs paso a paso, usa [docs/CONNECT_APIS.md](docs/CONNECT_APIS.md).
 
@@ -73,7 +72,7 @@ Las pantallas de dashboard usan `localStorage` para que los botones funcionen si
 - Guardar identidad de tienda, logo y portada.
 - Crear productos y ajustar stock.
 - Publicar ofertas con texto e imagen para landing y tienda.
-- Crear anuncios de marketing con imagenes de referencia, copy, hashtags y Canva.
+- Crear anuncios de marketing con imagenes de referencia, copy y hashtags.
 - Crear pedidos desde checkout y verlos en seguimiento/dashboard local.
 - Avanzar o cancelar pedidos.
 - Agregar notas CRM.
@@ -186,8 +185,8 @@ supabase/migrations/0007_marketing_campaigns.sql
 ```
 
 Esta migracion crea `marketing_campaigns` y el bucket `marketing-assets` para
-anuncios, referencias y enlaces Canva por negocio. El acceso queda limitado por
-RLS a owner/admin/sales del tenant.
+anuncios, referencias y piezas de marketing por negocio. El acceso queda
+limitado por RLS a owner/admin/sales del tenant.
 
 ## AI Delivery Manager
 
@@ -220,17 +219,6 @@ POST /api/ai/marketing-image
 Usa `OPENAI_IMAGE_MODEL` para generar anuncios. Por defecto queda en
 `gpt-image-2`. Si no hay `OPENAI_API_KEY`, crea un mockup SVG local para que el
 flujo siga funcionando.
-
-Endpoint Canva:
-
-```http
-POST /api/canva/create-design
-```
-
-Usa Canva Connect API con `CANVA_ACCESS_TOKEN`. Si el token existe y tiene
-scopes `asset:write`, `asset:read` y `design:content:write`, RightHand sube la
-imagen generada como asset y crea un diseno editable. TODO produccion: cambiar
-el token manual por OAuth por usuario/negocio.
 
 ## PayPal
 

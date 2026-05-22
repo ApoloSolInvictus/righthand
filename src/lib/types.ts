@@ -101,9 +101,6 @@ export type MarketingCampaign = {
   referenceImages: string[];
   captions: string[];
   hashtags: string[];
-  canvaDesignId?: string;
-  canvaEditUrl?: string;
-  canvaViewUrl?: string;
   createdAt: string;
 };
 

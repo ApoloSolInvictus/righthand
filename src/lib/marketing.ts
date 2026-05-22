@@ -8,7 +8,6 @@ export type MarketingFormat = {
   description: string;
   width: number;
   height: number;
-  canvaDesignType: string;
   imageSize: "1024x1024" | "1024x1536" | "1536x1024";
   aspectClass: string;
 };
@@ -20,7 +19,6 @@ export const marketingFormats: MarketingFormat[] = [
     description: "Feed cuadrado para promociones y ofertas.",
     width: 1080,
     height: 1080,
-    canvaDesignType: "InstagramPost",
     imageSize: "1024x1024",
     aspectClass: "aspect-square",
   },
@@ -30,7 +28,6 @@ export const marketingFormats: MarketingFormat[] = [
     description: "Vertical para historias, reels y anuncios moviles.",
     width: 1080,
     height: 1920,
-    canvaDesignType: "InstagramStory",
     imageSize: "1024x1536",
     aspectClass: "aspect-[9/16]",
   },
@@ -40,7 +37,6 @@ export const marketingFormats: MarketingFormat[] = [
     description: "Horizontal para pauta y publicaciones compartibles.",
     width: 1200,
     height: 628,
-    canvaDesignType: "FacebookAd",
     imageSize: "1536x1024",
     aspectClass: "aspect-[1200/628]",
   },
@@ -50,7 +46,6 @@ export const marketingFormats: MarketingFormat[] = [
     description: "Vertical para estados y difusion transaccional.",
     width: 1080,
     height: 1920,
-    canvaDesignType: "InstagramStory",
     imageSize: "1024x1536",
     aspectClass: "aspect-[9/16]",
   },
@@ -60,7 +55,6 @@ export const marketingFormats: MarketingFormat[] = [
     description: "Pieza vertical para tienda, mostrador y redes.",
     width: 1080,
     height: 1350,
-    canvaDesignType: "Flyer",
     imageSize: "1024x1536",
     aspectClass: "aspect-[4/5]",
   },
@@ -99,17 +93,3 @@ export type MarketingImageResult = {
   captions: string[];
   hashtags: string[];
 };
-
-export const CanvaCreateDesignInputSchema = z.object({
-  title: z.string().trim().min(1).max(255),
-  formatId: z.enum([
-    "instagram_post",
-    "instagram_story",
-    "facebook_ad",
-    "whatsapp_status",
-    "flyer",
-  ]),
-  imageDataUrl: z.string().startsWith("data:image/").optional(),
-});
-
-export type CanvaCreateDesignInput = z.infer<typeof CanvaCreateDesignInputSchema>;

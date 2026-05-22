@@ -90,7 +90,7 @@ export const featureRules: Record<
   marketing: {
     label: "Marketing Digital",
     minimumPlan: "free",
-    description: "Anuncios con IA, imagenes de referencia y conexion Canva.",
+    description: "Anuncios con IA, imagenes de referencia y formatos para redes.",
   },
   products: {
     label: "Productos",

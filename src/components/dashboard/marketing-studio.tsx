@@ -2,10 +2,8 @@
 
 import {
   Copy,
-  ExternalLink,
   ImagePlus,
   Megaphone,
-  Palette,
   Sparkles,
   Trash2,
 } from "lucide-react";
@@ -55,15 +53,6 @@ type MarketingApiResponse = {
   };
 };
 
-type CanvaApiResponse = {
-  source: string;
-  fallbackUrl?: string;
-  message?: string;
-  designId?: string;
-  editUrl?: string;
-  viewUrl?: string;
-};
-
 const campaignsStorageKey = "righthand:marketing-campaigns";
 const offersStorageKey = "righthand:offers";
 
@@ -78,10 +67,6 @@ function createInitialDraft(business: Business): DraftState {
     formatId: "instagram_post",
     referenceImages: [],
   };
-}
-
-function isCanvaUploadableDataImage(imageUrl: string) {
-  return /^data:image\/(png|jpeg|jpg|webp);base64,/i.test(imageUrl);
 }
 
 export function MarketingStudio({
@@ -99,7 +84,6 @@ export function MarketingStudio({
     null,
   );
   const [loading, setLoading] = useState(false);
-  const [canvaLoading, setCanvaLoading] = useState(false);
   const [message, setMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -111,9 +95,6 @@ export function MarketingStudio({
     [business.id, campaigns],
   );
   const latestCampaign = selectedCampaign || businessCampaigns[0] || null;
-  const canUseGeneratedImageInCanva = latestCampaign
-    ? isCanvaUploadableDataImage(latestCampaign.imageUrl)
-    : false;
 
   async function handleReferenceUpload(event: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files || []).slice(0, 4);
@@ -187,72 +168,6 @@ export function MarketingStudio({
     }
   }
 
-  async function createCanvaDesign() {
-    const target = latestCampaign;
-
-    if (!target) {
-      setMessage("Primero genera o selecciona una campana.");
-      return;
-    }
-
-    setCanvaLoading(true);
-    setMessage("");
-
-    try {
-      const response = await fetch("/api/canva/create-design", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: `${target.title} - ${getMarketingFormat(target.formatId).label}`,
-          formatId: target.formatId,
-          imageDataUrl: canUseGeneratedImageInCanva ? target.imageUrl : undefined,
-        }),
-      });
-      const data = (await response.json()) as CanvaApiResponse;
-
-      if (!response.ok) {
-        throw new Error(data.message || "No se pudo crear el diseno en Canva.");
-      }
-
-      if (data.editUrl) {
-        setCampaigns((current) =>
-          current.map((campaign) =>
-            campaign.id === target.id
-              ? {
-                  ...campaign,
-                  canvaDesignId: data.designId,
-                  canvaEditUrl: data.editUrl,
-                  canvaViewUrl: data.viewUrl,
-                }
-              : campaign,
-          ),
-        );
-        setSelectedCampaign((current) =>
-          current?.id === target.id
-            ? {
-                ...current,
-                canvaDesignId: data.designId,
-                canvaEditUrl: data.editUrl,
-                canvaViewUrl: data.viewUrl,
-              }
-            : current,
-        );
-        window.open(data.editUrl, "_blank", "noreferrer");
-        setMessage("Diseno creado en Canva y abierto en una nueva pestana.");
-        return;
-      }
-
-      if (data.fallbackUrl) {
-        setMessage(data.message || "Configura Canva Connect para crear disenos.");
-        window.open(data.fallbackUrl, "_blank", "noreferrer");
-      }
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Error conectando Canva.");
-    } finally {
-      setCanvaLoading(false);
-    }
-  }
-
   function saveAsOffer() {
     const target = latestCampaign;
 
@@ -303,8 +218,8 @@ export function MarketingStudio({
           Anuncios IA para {business.name}
         </h1>
         <p className="mt-2 max-w-3xl text-muted-foreground">
-          Crea piezas para redes, sube referencias, genera anuncios con IA y abre
-          un diseno en Canva para pulir la publicacion final.
+          Crea piezas para redes, sube referencias y genera anuncios con OpenAI
+          para usar en redes sociales, ofertas y campanas de ventas.
         </p>
       </div>
 
@@ -482,8 +397,8 @@ export function MarketingStudio({
                 </p>
               </div>
               <Badge variant="delivery">
-                <Palette className="mr-1 h-3 w-3" aria-hidden="true" />
-                Canva ready
+                <Sparkles className="mr-1 h-3 w-3" aria-hidden="true" />
+                OpenAI ready
               </Badge>
             </CardHeader>
             <CardContent className="grid gap-5 lg:grid-cols-[minmax(260px,420px)_1fr]">
@@ -531,36 +446,7 @@ export function MarketingStudio({
                         <Megaphone className="h-4 w-4" aria-hidden="true" />
                         Guardar como oferta
                       </Button>
-                      <Button
-                        type="button"
-                        variant="delivery"
-                        onClick={createCanvaDesign}
-                        disabled={canvaLoading}
-                        className="sm:col-span-2"
-                      >
-                        <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                        {canvaLoading ? "Conectando Canva..." : "Crear en Canva"}
-                      </Button>
-                      {latestCampaign.canvaEditUrl ? (
-                        <Button asChild type="button" variant="secondary">
-                          <a
-                            href={latestCampaign.canvaEditUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                            Abrir diseno Canva
-                          </a>
-                        </Button>
-                      ) : null}
                     </div>
-                    {!canUseGeneratedImageInCanva ? (
-                      <p className="rounded-md bg-secondary p-3 text-xs text-muted-foreground">
-                        El mockup local se puede recrear en Canva como lienzo. Las
-                        imagenes PNG generadas por OpenAI se suben como asset cuando
-                        configures Canva Connect.
-                      </p>
-                    ) : null}
                   </>
                 ) : null}
               </div>
@@ -598,9 +484,6 @@ export function MarketingStudio({
                     <div>
                       <div className="mb-2 flex flex-wrap gap-2">
                         <Badge variant="secondary">{format.label}</Badge>
-                        {campaign.canvaEditUrl ? (
-                          <Badge variant="success">Canva</Badge>
-                        ) : null}
                       </div>
                       <p className="font-semibold">{campaign.title}</p>
                       <p className="mt-1 text-sm leading-6 text-muted-foreground">

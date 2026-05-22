@@ -93,7 +93,7 @@ Importante:
 - `businesses` guarda provincia, ciudad, tipo, estilo, oferta, tags e indice de busqueda para el directorio publico.
 - `stores` guarda direccion fisica, latitud y longitud para el boton Waze publico.
 - `business_offers` guarda promociones con texto e imagen para landing, tienda publica y AI Concierge.
-- `marketing_campaigns` guarda anuncios, referencias, copy y enlaces Canva por negocio.
+- `marketing_campaigns` guarda anuncios, referencias, copy y piezas de marketing por negocio.
 - Buckets creados: `store-assets`, `delivery-proofs` y `marketing-assets`.
 
 Docs utiles:
@@ -139,40 +139,7 @@ Docs utiles:
 - Responses/text generation: https://platform.openai.com/docs/guides/text
 - Image generation: https://developers.openai.com/api/docs/guides/image-generation
 
-## 4. Canva Connect
-
-RightHand crea disenos Canva desde `/dashboard/marketing` con:
-
-```http
-POST /api/canva/create-design
-```
-
-Para activar Canva Connect:
-
-1. Entra a Canva Developers.
-2. Crea una integracion Connect.
-3. Configura OAuth para obtener un access token por usuario/negocio.
-4. Asegura scopes:
-   - `asset:write`
-   - `asset:read`
-   - `design:content:write`
-5. Para pruebas privadas, pega un access token temporal en Vercel:
-
-```env
-CANVA_ACCESS_TOKEN=...
-```
-
-Importante: el token actua en nombre de un usuario de Canva. Para produccion,
-reemplaza el token manual por OAuth y guarda tokens por tenant. RightHand ya
-deja el TODO marcado en `.env.example`.
-
-Docs utiles:
-
-- Canva Connect APIs: https://www.canva.dev/docs/connect/
-- Create design: https://www.canva.dev/docs/connect/api-reference/designs/create-design/
-- Asset upload: https://www.canva.dev/docs/connect/api-reference/assets/create-asset-upload-job/
-
-## 5. PayPal Subscriptions
+## 4. PayPal Subscriptions
 
 RightHand usa los botones oficiales de PayPal en `/dashboard/billing`. El SDK se carga una sola vez y renderiza:
 
@@ -223,7 +190,7 @@ Docs utiles:
 - Subscriptions webhooks: https://developer.paypal.com/docs/subscriptions/reference/webhooks/
 - Verify webhook signature: https://developer.paypal.com/docs/api/webhooks/v1/#verify-webhook-signature_post
 
-## 6. WhatsApp Business opcional
+## 5. WhatsApp Business opcional
 
 RightHand lo deja como soporte transaccional. Conectalo solo para estados de pedidos.
 
@@ -242,7 +209,7 @@ Flujos recomendados:
 - Pedido entregado.
 - Pedido atrasado.
 
-## 7. Checklist final de produccion
+## 6. Checklist final de produccion
 
 1. Configurar dominio en Vercel.
 2. Cambiar `NEXT_PUBLIC_APP_URL` al dominio final.
