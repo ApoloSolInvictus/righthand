@@ -13,7 +13,7 @@ Slogan: **La mano derecha de tu tienda.**
 - **AI Concierge:** `POST /api/ai/store-concierge` alimenta el chat global multilingue con negocios, tiendas, productos, horarios y zonas de entrega.
 - **Traduccion global:** boton flotante de mundo con Google Translate para que visitantes extranjeros puedan leer tiendas, productos y checkout.
 - **Ofertas:** promociones con texto e imagen para landing, tienda publica y chat IA, disponibles en todos los planes.
-- **Marketing Digital:** `/dashboard/marketing` crea anuncios con OpenAI Images, referencias visuales y copy para redes.
+- **Marketing Digital:** `/dashboard/marketing` crea anuncios con OpenAI Images, referencias visuales y copy para redes en planes PYME/Pro.
 - **Pagos:** botones oficiales PayPal Live para suscripciones PYME/Pro y webhook para eventos.
 - **Waze:** `generateWazeLink({ lat, lng, address })` usa lat/lng cuando existen y fallback por direccion para entregas y visitas a tienda.
 
@@ -188,6 +188,16 @@ Esta migracion crea `marketing_campaigns` y el bucket `marketing-assets` para
 anuncios, referencias y piezas de marketing por negocio. El acceso queda
 limitado por RLS a owner/admin/sales del tenant.
 
+Migracion de reglas por plan:
+
+```bash
+supabase/migrations/0008_plan_access_enforcement.sql
+```
+
+Esta migracion refuerza que Marketing Digital sea solo para PYME/Pro, evita que
+usuarios cambien su `plan` directo desde el cliente y bloquea mas de 20
+productos activos en negocios Gratis.
+
 ## AI Delivery Manager
 
 Endpoint:
@@ -218,7 +228,7 @@ POST /api/ai/marketing-image
 
 Usa `OPENAI_IMAGE_MODEL` para generar anuncios. Por defecto queda en
 `gpt-image-2`. Si no hay `OPENAI_API_KEY`, crea un mockup SVG local para que el
-flujo siga funcionando.
+flujo siga funcionando. La pantalla y el API requieren Plan PYME o superior.
 
 ## PayPal
 
@@ -244,13 +254,15 @@ Variables clave:
 - `PAYPAL_PLAN_PRO_ID`
 - `PAYPAL_WEBHOOK_ID`
 
-TODO produccion: persistir eventos verificados en `subscriptions` y mapear `paypal_subscription_id` contra `business_id`.
+Los botones oficiales envian el `businessId` en `custom_id`. La activacion y el
+webhook verifican PayPal, guardan `paypal_subscription_id` en `subscriptions` y
+actualizan `businesses.plan` segun el estado de la suscripcion.
 
 ## Plan Comercial Costa Rica
 
-- **Plan Gratis:** 20 productos, 30 pedidos/mes.
-- **Plan PYME:** $19/mes, productos ilimitados, CRM, entregas.
-- **Plan Pro:** $49/mes, AI Delivery Manager, mensajeros, reportes.
+- **Plan Gratis:** 20 productos, 30 pedidos/mes, ofertas y contabilidad.
+- **Plan PYME:** $19/mes, productos ilimitados, CRM, entregas y Marketing Digital.
+- **Plan Pro:** $49/mes, AI Delivery Manager, mensajeros y reportes avanzados.
 - **Plan Enterprise:** personalizado.
 
 ## Datos Demo

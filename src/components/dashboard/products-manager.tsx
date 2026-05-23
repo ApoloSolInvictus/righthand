@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { usePersistentState } from "@/lib/local-demo-store";
-import { freePlanLimits, planDetails } from "@/lib/plans";
+import { getPlanProductLimit, planDetails } from "@/lib/plans";
 import type { Product, ProductCategory, SubscriptionPlan } from "@/lib/types";
 import { crcCurrency, formatPercent } from "@/lib/utils";
 
@@ -39,6 +39,8 @@ export function ProductsManager({
   );
   const [showForm, setShowForm] = useState(false);
   const [message, setMessage] = useState("");
+  const productLimit = getPlanProductLimit(currentPlan);
+  const reachedProductLimit = productLimit !== null && products.length >= productLimit;
 
   function changeStock(productId: string, delta: number) {
     setProducts((current) =>
@@ -52,8 +54,8 @@ export function ProductsManager({
   }
 
   function addProduct(formData: FormData) {
-    if (currentPlan === "free" && products.length >= freePlanLimits.products) {
-      setMessage(`El plan Gratis permite hasta ${freePlanLimits.products} productos.`);
+    if (reachedProductLimit && productLimit !== null) {
+      setMessage(`El plan Gratis permite hasta ${productLimit} productos.`);
       setShowForm(false);
       return;
     }
@@ -89,15 +91,15 @@ export function ProductsManager({
           <h1 className="text-3xl font-black tracking-normal text-primary">
             Productos y margen
           </h1>
-          {currentPlan === "free" ? (
+          {productLimit !== null ? (
             <p className="mt-2 text-sm text-muted-foreground">
-              Plan {planDetails.free.label}: {products.length}/{freePlanLimits.products} productos.
+              Plan {planDetails.free.label}: {products.length}/{productLimit} productos.
             </p>
           ) : null}
         </div>
         <Button
           type="button"
-          disabled={currentPlan === "free" && products.length >= freePlanLimits.products}
+          disabled={reachedProductLimit}
           onClick={() => setShowForm(true)}
         >
           <Plus className="h-4 w-4" aria-hidden="true" />

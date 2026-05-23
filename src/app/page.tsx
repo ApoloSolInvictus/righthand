@@ -42,7 +42,7 @@ const features = [
 
 const planHighlights = [
   "Gratis para validar ventas pequenas",
-  "PYME con productos ilimitados y CRM",
+  "PYME con productos ilimitados, CRM y marketing",
   "Pro con AI Manager, mensajeros y reportes",
 ];
 

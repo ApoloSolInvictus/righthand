@@ -16,6 +16,7 @@ import {
   productCategories,
   stores,
 } from "@/lib/mock-data";
+import { limitProductsForPlan } from "@/lib/plans";
 import { crcCurrency } from "@/lib/utils";
 import { createSeoMetadata, seoKeywords } from "@/lib/seo";
 import { generateWazeLink } from "@/lib/waze";
@@ -42,9 +43,10 @@ export async function generateMetadata({
     });
   }
 
-  const storeProducts = products.filter(
+  const activeStoreProducts = products.filter(
     (product) => product.businessId === store.businessId && product.active,
   );
+  const storeProducts = limitProductsForPlan(activeStoreProducts, business.plan);
   const description = `${store.name} en RightHand: ${business.businessStyle} en ${business.city}, ${business.province}. ${business.offerSummary}`;
 
   return createSeoMetadata({
@@ -78,7 +80,10 @@ export default async function StorefrontPage({
     notFound();
   }
 
-  const storeProducts = products.filter((product) => product.businessId === store.businessId);
+  const activeStoreProducts = products.filter(
+    (product) => product.businessId === store.businessId && product.active,
+  );
+  const storeProducts = limitProductsForPlan(activeStoreProducts, business.plan);
   const categories = productCategories.filter(
     (category) => category.businessId === store.businessId,
   );

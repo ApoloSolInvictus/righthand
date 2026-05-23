@@ -1,12 +1,14 @@
 import OpenAI, { toFile } from "openai";
 import { NextResponse } from "next/server";
 
+import { getCurrentAccount } from "@/lib/account-context";
 import {
   MarketingImageInputSchema,
   type MarketingImageInput,
   type MarketingImageResult,
   getMarketingFormat,
 } from "@/lib/marketing";
+import { canUseFeature, featureRules, planDetails } from "@/lib/plans";
 
 export const runtime = "nodejs";
 
@@ -191,6 +193,21 @@ export async function POST(request: Request) {
   }
 
   const input = parsed.data;
+  const account = await getCurrentAccount();
+
+  if (!canUseFeature(account.plan, "marketing")) {
+    const requiredPlan = planDetails[featureRules.marketing.minimumPlan].label;
+
+    return NextResponse.json(
+      {
+        error: `Marketing Digital requiere Plan ${requiredPlan}`,
+        plan: planDetails[account.plan].label,
+        requiredPlan,
+      },
+      { status: 403 },
+    );
+  }
+
   const prompt = buildPrompt(input);
 
   if (!hasUsableOpenAIKey()) {

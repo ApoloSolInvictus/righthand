@@ -1,11 +1,13 @@
 "use client";
 
 import { CheckCircle2, ShieldCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePersistentState } from "@/lib/local-demo-store";
+import { freePlanLimits, planDetails } from "@/lib/plans";
 import type { SubscriptionPlan } from "@/lib/types";
 import { usdCurrency } from "@/lib/utils";
 
@@ -19,7 +21,12 @@ const plans = [
     name: "PYME",
     price: 19,
     description: "Productos ilimitados, CRM y entregas.",
-    features: ["Inventario ilimitado", "CRM", "Entregas y zonas"],
+    features: [
+      "Inventario ilimitado",
+      "CRM",
+      "Entregas y zonas",
+      "Marketing Digital con IA",
+    ],
     planId: "P-7ER35589F36485216NIGO3JQ",
     paypalColor: "gold",
   },
@@ -28,7 +35,12 @@ const plans = [
     name: "Pro",
     price: 49,
     description: "AI Delivery Manager, mensajeros y reportes.",
-    features: ["AI Manager", "Mensajeros", "Reportes avanzados"],
+    features: [
+      "Todo PYME",
+      "AI Manager",
+      "Mensajeros",
+      "Reportes avanzados",
+    ],
     planId: "P-8BN67865HY6507532NIGO4PI",
     paypalColor: "blue",
   },
@@ -84,10 +96,10 @@ function sdkUrl() {
 
 function planLabel(plan: SubscriptionPlan) {
   if (plan === "free") {
-    return "sin plan activo";
+    return `${planDetails.free.label} activo`;
   }
 
-  return plan;
+  return planDetails[plan].label;
 }
 
 export function BillingManager({
@@ -107,6 +119,7 @@ export function BillingManager({
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const renderedPlans = useRef<Set<string>>(new Set());
+  const router = useRouter();
 
   const activateSubscription = useCallback(
     async (item: (typeof plans)[number], data: PayPalSubscriptionData) => {
@@ -146,6 +159,7 @@ export function BillingManager({
         setMessage(
           `Suscripcion ${item.name} aprobada: ${subscriptionId}. Servicios ${activatedPlan.toUpperCase()} activos${payload.mode === "demo" ? " en modo demo" : ""}.`,
         );
+        router.refresh();
       } catch (activationError) {
         console.error("PayPal activation persistence failed", activationError);
         setPlan(item.id);
@@ -154,7 +168,7 @@ export function BillingManager({
         );
       }
     },
-    [setPlan],
+    [router, setPlan],
   );
 
   useEffect(() => {
@@ -303,6 +317,33 @@ export function BillingManager({
           </Card>
         ))}
       </section>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Reglas activas por plan</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3 text-sm text-muted-foreground md:grid-cols-3">
+          <div className="rounded-md bg-secondary p-3">
+            <p className="font-semibold text-primary">Gratis</p>
+            <p className="mt-1">
+              {freePlanLimits.products} productos, tienda publica, ofertas y
+              contabilidad. Marketing Digital queda bloqueado.
+            </p>
+          </div>
+          <div className="rounded-md bg-secondary p-3">
+            <p className="font-semibold text-primary">PYME</p>
+            <p className="mt-1">
+              Productos ilimitados, CRM, entregas, zonas y Marketing Digital.
+            </p>
+          </div>
+          <div className="rounded-md bg-secondary p-3">
+            <p className="font-semibold text-primary">Pro</p>
+            <p className="mt-1">
+              Todo PYME, AI Delivery Manager, mensajeros y reportes avanzados.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

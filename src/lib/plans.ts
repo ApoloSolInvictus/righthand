@@ -29,20 +29,37 @@ export const planDetails: Record<
   free: {
     label: "Gratis",
     price: "$0/mes",
-    summary: "Para probar RightHand y empezar a vender.",
-    limits: ["20 productos", "30 pedidos/mes", "Tienda publica y pedidos basicos"],
+    summary: "Para validar ventas pequenas con tienda, ofertas y contabilidad.",
+    limits: [
+      "20 productos",
+      "30 pedidos/mes",
+      "Tienda publica",
+      "Ofertas",
+      "Contabilidad",
+    ],
   },
   pyme: {
     label: "PYME",
     price: "$19/mes",
-    summary: "Productos ilimitados, CRM, entregas y contabilidad operativa.",
-    limits: ["Productos ilimitados", "CRM", "Entregas", "Auxiliar IVA"],
+    summary: "Productos ilimitados, CRM, entregas y Marketing Digital.",
+    limits: [
+      "Productos ilimitados",
+      "CRM",
+      "Entregas y zonas",
+      "Marketing Digital",
+      "Contabilidad",
+    ],
   },
   pro: {
     label: "Pro",
     price: "$49/mes",
-    summary: "AI Delivery Manager, mensajeros y reportes completos.",
-    limits: ["Todo PYME", "AI Delivery Manager", "Mensajeros", "Reportes"],
+    summary: "AI Delivery Manager, mensajeros y reportes avanzados.",
+    limits: [
+      "Todo PYME",
+      "AI Delivery Manager",
+      "Mensajeros",
+      "Reportes avanzados",
+    ],
   },
   enterprise: {
     label: "Enterprise",
@@ -89,7 +106,7 @@ export const featureRules: Record<
   },
   marketing: {
     label: "Marketing Digital",
-    minimumPlan: "free",
+    minimumPlan: "pyme",
     description: "Anuncios con IA, imagenes de referencia y formatos para redes.",
   },
   products: {
@@ -138,6 +155,16 @@ export const freePlanLimits = {
   products: 20,
   monthlyOrders: 30,
 };
+
+export function getPlanProductLimit(plan: SubscriptionPlan) {
+  return plan === "free" ? freePlanLimits.products : null;
+}
+
+export function limitProductsForPlan<T>(items: T[], plan: SubscriptionPlan) {
+  const limit = getPlanProductLimit(plan);
+
+  return limit === null ? items : items.slice(0, limit);
+}
 
 export function normalizeSubscriptionPlan(
   value: string | null | undefined,

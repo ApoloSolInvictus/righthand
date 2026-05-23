@@ -559,21 +559,23 @@ export function getStoreBySlug(slug: string) {
 }
 
 export function getBusinessDataset(businessId = getPrimaryBusiness().id) {
+  const business = businesses.find((item) => item.id === businessId) || getPrimaryBusiness();
+
   return {
-    business: businesses.find((business) => business.id === businessId)!,
-    store: stores.find((store) => store.businessId === businessId)!,
-    products: products.filter((product) => product.businessId === businessId),
+    business,
+    store: stores.find((store) => store.businessId === business.id)!,
+    products: products.filter((product) => product.businessId === business.id),
     categories: productCategories.filter(
-      (category) => category.businessId === businessId,
+      (category) => category.businessId === business.id,
     ),
-    customers: customers.filter((customer) => customer.businessId === businessId),
-    orders: orders.filter((order) => order.businessId === businessId),
-    couriers: couriers.filter((courier) => courier.businessId === businessId),
-    deliveries: deliveries.filter((delivery) => delivery.businessId === businessId),
-    zones: deliveryZones.filter((zone) => zone.businessId === businessId),
-    offers: businessOffers.filter((offer) => offer.businessId === businessId),
+    customers: customers.filter((customer) => customer.businessId === business.id),
+    orders: orders.filter((order) => order.businessId === business.id),
+    couriers: couriers.filter((courier) => courier.businessId === business.id),
+    deliveries: deliveries.filter((delivery) => delivery.businessId === business.id),
+    zones: deliveryZones.filter((zone) => zone.businessId === business.id),
+    offers: businessOffers.filter((offer) => offer.businessId === business.id),
     marketingCampaigns: marketingCampaigns.filter(
-      (campaign) => campaign.businessId === businessId,
+      (campaign) => campaign.businessId === business.id,
     ),
   };
 }

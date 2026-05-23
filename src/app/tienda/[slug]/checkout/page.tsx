@@ -5,7 +5,8 @@ import { notFound } from "next/navigation";
 import { CheckoutForm } from "@/components/storefront/checkout-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getStoreBySlug, products } from "@/lib/mock-data";
+import { getBusinessBySlug, getStoreBySlug, products } from "@/lib/mock-data";
+import { limitProductsForPlan } from "@/lib/plans";
 
 export default async function CheckoutPage({
   params,
@@ -17,12 +18,16 @@ export default async function CheckoutPage({
   const { slug } = await params;
   const { product } = await searchParams;
   const store = getStoreBySlug(slug);
+  const business = getBusinessBySlug(slug);
 
-  if (!store) {
+  if (!store || !business) {
     notFound();
   }
 
-  const storeProducts = products.filter((product) => product.businessId === store.businessId);
+  const activeStoreProducts = products.filter(
+    (product) => product.businessId === store.businessId && product.active,
+  );
+  const storeProducts = limitProductsForPlan(activeStoreProducts, business.plan);
 
   return (
     <main className="min-h-screen bg-background">
