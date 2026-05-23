@@ -1,4 +1,5 @@
 import { ArrowLeft, LogIn } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { login } from "./actions";
@@ -7,6 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
+import { createSeoMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = createSeoMetadata({
+  title: "Login | RightHand",
+  description: "Entrada privada para negocios que usan RightHand.",
+  path: "/login",
+  noIndex: true,
+});
 
 export default function LoginPage() {
   const demoMode = !hasSupabaseEnv();

@@ -3,6 +3,15 @@ import localFont from "next/font/local";
 
 import { StoreConciergeChat } from "@/components/ai/store-concierge-chat";
 import { SiteTranslator } from "@/components/i18n/site-translator";
+import {
+  createSeoMetadata,
+  faviconPath,
+  seoDescription,
+  seoKeywords,
+  siteName,
+  siteSlogan,
+  siteUrl,
+} from "@/lib/seo";
 
 import "./globals.css";
 
@@ -18,9 +27,31 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "RightHand | La mano derecha de tu tienda",
-  description:
-    "SaaS multi-tenant para vender mejor, entregar mas rapido y organizar clientes en PYMES de Costa Rica.",
+  metadataBase: new URL(siteUrl),
+  ...createSeoMetadata({
+    title: `${siteName} | ${siteSlogan}`,
+    description: seoDescription,
+    path: "/",
+    keywords: seoKeywords,
+  }),
+  applicationName: siteName,
+  authors: [{ name: "RightHand" }],
+  creator: "RightHand",
+  publisher: "RightHand",
+  category: "Business Software",
+  icons: {
+    icon: [{ url: faviconPath, type: "image/png" }],
+    shortcut: [{ url: faviconPath, type: "image/png" }],
+    apple: [{ url: faviconPath, type: "image/png" }],
+  },
+  appleWebApp: {
+    capable: true,
+    title: siteName,
+    statusBarStyle: "default",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export default function RootLayout({

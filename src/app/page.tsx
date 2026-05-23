@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BusinessDirectorySearch } from "@/components/storefront/business-directory-search";
 import { OffersCarousel } from "@/components/storefront/offers-carousel";
 import { businesses, businessOffers } from "@/lib/mock-data";
+import { absoluteUrl, seoDescription, siteName, siteSlogan, siteUrl } from "@/lib/seo";
 
 const features = [
   {
@@ -46,8 +47,72 @@ const planHighlights = [
 ];
 
 export default function Home() {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${siteUrl}/#organization`,
+        name: siteName,
+        url: siteUrl,
+        logo: absoluteUrl("/images/favicon.png"),
+        sameAs: [siteUrl],
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": `${siteUrl}/#software`,
+        name: siteName,
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        url: siteUrl,
+        image: absoluteUrl("/images/seorh.jpg"),
+        description: seoDescription,
+        slogan: siteSlogan,
+        areaServed: {
+          "@type": "Country",
+          name: "Costa Rica",
+        },
+        offers: [
+          {
+            "@type": "Offer",
+            name: "Plan Gratis",
+            price: "0",
+            priceCurrency: "USD",
+          },
+          {
+            "@type": "Offer",
+            name: "Plan PYME",
+            price: "19",
+            priceCurrency: "USD",
+          },
+          {
+            "@type": "Offer",
+            name: "Plan Pro",
+            price: "49",
+            priceCurrency: "USD",
+          },
+        ],
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        name: siteName,
+        url: siteUrl,
+        description: seoDescription,
+        inLanguage: "es-CR",
+        publisher: {
+          "@id": `${siteUrl}/#organization`,
+        },
+      },
+    ],
+  };
+
   return (
     <main className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <section
         className="relative min-h-[92vh] overflow-hidden bg-cover bg-center text-white"
         style={{

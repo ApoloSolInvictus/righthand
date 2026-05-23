@@ -1,4 +1,5 @@
 import { ArrowLeft, Store } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { register } from "./actions";
@@ -9,6 +10,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { businessCategories, costaRicaProvinces } from "@/lib/business-profile";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
+import { createSeoMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = createSeoMetadata({
+  title: "Registrar negocio | RightHand",
+  description: "Registro privado para crear una tienda en RightHand.",
+  path: "/register",
+  noIndex: true,
+});
 
 export default function RegisterPage() {
   const demoMode = !hasSupabaseEnv();

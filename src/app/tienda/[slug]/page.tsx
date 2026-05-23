@@ -1,4 +1,5 @@
 import { Clock3, MapPinned, Navigation, ShoppingCart } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -16,10 +17,52 @@ import {
   stores,
 } from "@/lib/mock-data";
 import { crcCurrency } from "@/lib/utils";
+import { createSeoMetadata, seoKeywords } from "@/lib/seo";
 import { generateWazeLink } from "@/lib/waze";
 
 export function generateStaticParams() {
   return stores.map((store) => ({ slug: store.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const store = getStoreBySlug(slug);
+  const business = getBusinessBySlug(slug);
+
+  if (!store || !business) {
+    return createSeoMetadata({
+      title: "Tienda no encontrada | RightHand",
+      description: "Esta tienda de RightHand no esta disponible.",
+      path: `/tienda/${slug}`,
+      noIndex: true,
+    });
+  }
+
+  const storeProducts = products.filter(
+    (product) => product.businessId === store.businessId && product.active,
+  );
+  const description = `${store.name} en RightHand: ${business.businessStyle} en ${business.city}, ${business.province}. ${business.offerSummary}`;
+
+  return createSeoMetadata({
+    title: `${store.name} | ${business.businessStyle} en RightHand`,
+    description,
+    path: `/tienda/${store.slug}`,
+    keywords: [
+      store.name,
+      business.name,
+      business.businessStyle,
+      business.city,
+      business.province,
+      business.type,
+      ...business.searchTags,
+      ...storeProducts.slice(0, 8).map((product) => product.name),
+      ...seoKeywords,
+    ],
+  });
 }
 
 export default async function StorefrontPage({
